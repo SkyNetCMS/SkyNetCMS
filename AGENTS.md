@@ -58,40 +58,47 @@ SkyNetCMS/
 ├── PLAN_v1.md             # Implementation plan with milestones
 ├── Idea.md                # Original idea document
 ├── PRD_Initial.md         # Initial PRD draft
+├── README.md              # Deployment documentation
+├── build.sh               # Simple wrapper to build Docker image
 │
 ├── docker/
 │   ├── Dockerfile         # Main container definition
-│   └── docker-compose.yml # Optional: for local development
+│   ├── docker-compose.yml # For local development/testing
+│   └── scripts/           # Scripts that run INSIDE container
+│       ├── init.sh        # Container startup/initialization
+│       ├── setup-auth.sh  # htpasswd generation
+│       └── build-site.sh  # Trigger site build
 │
 ├── nginx/
 │   ├── nginx.conf         # Main nginx configuration
 │   ├── conf.d/
-│   │   └── default.conf   # Site-specific configuration
+│   │   └── default.conf   # Site routing rules
 │   └── lua/
-│       └── auth.lua       # Lua authentication scripts (if needed)
+│       └── auth.lua       # Lua scripts for authentication
 │
 ├── opencode/
-│   ├── config/            # OpenCode configuration
-│   │   ├── agents/        # Agent definitions for end-user AI
-│   │   ├── skills/        # Custom skills
-│   │   └── mcp/           # MCP server configurations
-│   └── wrapper/           # Wrapper/integration code (if needed)
+│   └── config/            # → Copied to ~/.config/opencode/ in container
+│       ├── agents/        # System-level agent definitions
+│       ├── skills/        # System-level custom skills
+│       └── mcp/           # System-level MCP configurations
 │
-├── site/
-│   ├── src/               # Source files (where AI edits)
-│   ├── dist/              # Built output (served by nginx)
-│   └── build.sh           # Build script
-│
-├── templates/
-│   └── welcome/           # Initial welcome page template
-│
-├── scripts/
-│   ├── init.sh            # Container initialization
-│   ├── build-site.sh      # Site build trigger
-│   └── setup-auth.sh      # htpasswd setup helper
-│
-└── README.md              # Deployment documentation
+└── templates/
+    └── default/           # Default static template (MVP)
+        ├── src/           # Source files for initial site
+        │   └── index.html # Welcome page
+        ├── .opencode/     # Repo-level OpenCode config (CWD context)
+        │   └── ...        # Per-site agent configs
+        └── AGENTS.md      # AI instructions for site building
 ```
+
+### OpenCode Configuration Hierarchy
+
+| Location | Copied To (in container) | Purpose |
+|----------|--------------------------|---------|
+| `opencode/config/` | `~/.config/opencode/` | System-level OpenCode config (global settings, platform agents) |
+| `templates/default/.opencode/` | `/data/repo/.opencode/` | Repo-level config (site-specific AI context, CWD) |
+
+OpenCode reads both: system config from `~/.config/opencode/` and repo-level from `.opencode/` in its working directory (`/data/repo/`).
 
 ---
 
@@ -137,7 +144,7 @@ SkyNetCMS/
 - `nginx/conf.d/default.conf` - Site routing rules
 
 **Routing logic**:
-- `/` → Serve static content from `site/dist/`
+- `/` → Serve static content from `/data/repo/dist/`
 - `/sn_admin/` → htpasswd auth → proxy to OpenCode UI
 
 ### 4.2 OpenCode Integration
@@ -175,7 +182,7 @@ SkyNetCMS/
 **MVP approach**:
 - Simple script that copies/processes files
 - Triggered after AI commits changes
-- Output to `site/dist/` directory
+- Output to `/data/repo/dist/` directory
 
 ---
 
@@ -254,8 +261,8 @@ SkyNetCMS/
 
 ### Updating Welcome Template
 
-1. Edit files in `templates/welcome/`
-2. These are copied to `site/src/` on first run
+1. Edit files in `templates/default/`
+2. These are copied to `/data/repo/` on first run
 3. Ensure template includes link to `/sn_admin/`
 
 ---

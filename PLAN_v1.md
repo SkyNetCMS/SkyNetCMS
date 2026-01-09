@@ -27,17 +27,19 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 ### Feature 1.1: Repository Structure
 - [ ] Create folder structure as defined in AGENTS.md
   - [ ] `docker/` - Dockerfile and compose
+  - [ ] `docker/scripts/` - Scripts that run inside container
   - [ ] `nginx/` - nginx configs
   - [ ] `nginx/conf.d/` - site configs
-  - [ ] `nginx/lua/` - Lua scripts (if needed)
-  - [ ] `opencode/` - OpenCode configuration
-  - [ ] `opencode/config/agents/` - Agent definitions
-  - [ ] `opencode/config/skills/` - Custom skills
-  - [ ] `opencode/config/mcp/` - MCP configurations
-  - [ ] `site/` - Website source and build output
-  - [ ] `templates/` - Initial templates
-  - [ ] `scripts/` - Helper scripts
+  - [ ] `nginx/lua/` - Lua scripts for authentication
+  - [ ] `opencode/` - OpenCode system-level configuration
+  - [ ] `opencode/config/agents/` - System-level agent definitions
+  - [ ] `opencode/config/skills/` - System-level custom skills
+  - [ ] `opencode/config/mcp/` - System-level MCP configurations
+  - [ ] `templates/default/` - Default static template
+  - [ ] `templates/default/src/` - Template source files
+  - [ ] `templates/default/.opencode/` - Repo-level OpenCode config
 - [ ] Create placeholder README.md
+- [ ] Create build.sh wrapper script at root
 - [ ] Create .gitignore with appropriate entries
 - [ ] Initialize Git repository
 
@@ -59,7 +61,7 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
   - [ ] `ADMIN_PASS`
   - [ ] `SITE_TITLE`
   - [ ] `BUILD_CMD`
-- [ ] Create `scripts/init.sh` for container startup
+- [ ] Create `docker/scripts/init.sh` for container startup
   - [ ] Environment variable validation
   - [ ] Directory initialization
   - [ ] Service startup orchestration
@@ -96,14 +98,14 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 - [ ] Verify static files are served correctly
 
 ### Feature 2.3: htpasswd Authentication
-- [ ] Create `scripts/setup-auth.sh` to generate htpasswd file
+- [ ] Create `docker/scripts/setup-auth.sh` to generate htpasswd file
   - [ ] Use bcrypt hashing
   - [ ] Read from `ADMIN_USER` and `ADMIN_PASS` env vars
   - [ ] Write to `/data/.htpasswd`
 - [ ] Configure `/sn_admin/` location with:
   - [ ] `auth_basic` directive
   - [ ] `auth_basic_user_file` pointing to htpasswd
-- [ ] Update `scripts/init.sh` to run auth setup on startup
+- [ ] Update `docker/scripts/init.sh` to run auth setup on startup
 - [ ] Verify authentication works (401 without creds, 200 with creds)
 
 ### Feature 2.4: Verification
@@ -124,7 +126,7 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 - [ ] Add OpenCode installation to Dockerfile
 - [ ] Configure OpenCode to run as service
 - [ ] Determine OpenCode's web UI port
-- [ ] Update `scripts/init.sh` to start OpenCode
+- [ ] Update `docker/scripts/init.sh` to start OpenCode
 
 ### Feature 3.2: Nginx Proxy to OpenCode
 - [ ] Update `/sn_admin/` location to proxy to OpenCode
@@ -135,11 +137,14 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 - [ ] Verify OpenCode UI loads after authentication
 
 ### Feature 3.3: OpenCode Configuration for SkyNetCMS
-- [ ] Configure OpenCode working directory to `/data/repo/src/`
-- [ ] Create basic agent configuration for website building
+- [ ] Configure OpenCode working directory to `/data/repo/`
+- [ ] Create system-level config in `opencode/config/`
   - [ ] System prompt tailored for web development
   - [ ] File operation permissions
   - [ ] Git integration
+- [ ] Create repo-level config in `templates/default/.opencode/`
+  - [ ] Site-specific agent configuration
+  - [ ] AGENTS.md for site building context
 - [ ] Configure OpenCode to auto-commit changes
 - [ ] Verify AI can read/write files in repo
 
@@ -150,29 +155,31 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 **Goal**: Create welcome template and establish build pipeline.
 
 ### Feature 4.1: Welcome Template
-- [ ] Create `templates/welcome/index.html` with:
+- [ ] Create `templates/default/src/index.html` with:
   - [ ] Clean, simple design
   - [ ] "Welcome to SkyNetCMS" heading
   - [ ] "Go to /sn_admin/ to start building" call-to-action
   - [ ] Basic styling (inline or minimal CSS)
+- [ ] Create `templates/default/AGENTS.md` for site-building AI context
+- [ ] Create `templates/default/.opencode/` with repo-level config
 - [ ] Template should be a good starting point for customization
 - [ ] Include link to admin panel
 
 ### Feature 4.2: First-Run Initialization
-- [ ] Update `scripts/init.sh` to:
+- [ ] Update `docker/scripts/init.sh` to:
   - [ ] Check if `/data/repo/` exists
   - [ ] If not, initialize Git repo
-  - [ ] Copy welcome template to `/data/repo/src/`
+  - [ ] Copy entire `templates/default/` contents to `/data/repo/`
+  - [ ] Copy `opencode/config/` to `~/.config/opencode/`
   - [ ] Run initial build
   - [ ] Create initial Git commit
 - [ ] Ensure idempotent (safe to run multiple times)
 
 ### Feature 4.3: Build Pipeline
-- [ ] Create `scripts/build-site.sh` with:
+- [ ] Create `docker/scripts/build-site.sh` with:
   - [ ] Copy files from `src/` to `dist/`
   - [ ] (Future: framework-specific build steps)
   - [ ] Error handling and logging
-- [ ] Create `site/build.sh` as default build script in repo
 - [ ] Configure build trigger mechanism:
   - [ ] Option A: Git hook (post-commit)
   - [ ] Option B: File watcher

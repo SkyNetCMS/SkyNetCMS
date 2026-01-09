@@ -85,7 +85,7 @@ SkyNetCMS transforms website creation from traditional form-based interfaces to 
 
 **Public Access (`/`)**:
 ```
-User → Nginx → Static files from /site/dist/
+User → Nginx → Static files from /data/repo/dist/
 ```
 
 **Admin Access (`/sn_admin/`)**:
@@ -98,7 +98,7 @@ User → Nginx → htpasswd auth → OpenCode Web UI (iframe)
                                       ↓
                                Build process runs
                                       ↓
-                               Updated /site/dist/
+                               Updated /data/repo/dist/
 ```
 
 ---
@@ -248,10 +248,13 @@ The Minimum Viable Product delivers:
 /
 ├── /usr/local/openresty/     # OpenResty installation
 ├── /app/opencode/            # OpenCode installation
+├── ~/.config/opencode/       # System-level OpenCode config (copied from opencode/config/)
 ├── /data/                    # Mounted volume
-│   ├── repo/                 # Git repository
+│   ├── repo/                 # Git repository (copied from templates/default/)
 │   │   ├── src/              # Source files (AI edits here)
-│   │   └── dist/             # Built output
+│   │   ├── dist/             # Built output (served by nginx)
+│   │   ├── .opencode/        # Repo-level OpenCode config
+│   │   └── AGENTS.md         # AI context for site building
 │   └── .htpasswd             # Authentication file
 └── /etc/nginx/               # Nginx configuration
 ```
