@@ -1,44 +1,53 @@
 # ============================================
 # SkyNetCMS Dockerfile
 # ============================================
-# Base: Node.js 24 LTS on Alpine
+# Base: Node.js 24 LTS on Debian Bookworm (slim)
 # + OpenResty (nginx with Lua)
 # + OpenCode (AI coding assistant)
 # ============================================
 
-FROM node:24-alpine
+FROM node:24-bookworm-slim
 
 LABEL maintainer="SkyNetCMS"
 LABEL description="AI-Powered Conversational CMS"
 
 # ----------------------------------------
-# Install dependencies
+# Install prerequisites for OpenResty
 # ----------------------------------------
-RUN apk add --no-cache \
-    bash \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        wget \
+        gnupg \
+        ca-certificates \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# ----------------------------------------
+# Install OpenResty (Debian packages)
+# Note: arm64 packages are in a different URL
+# ----------------------------------------
+RUN wget -O - https://openresty.org/package/pubkey.gpg | gpg --dearmor -o /etc/apt/trusted.gpg.d/openresty.gpg \
+    && ARCH=$(dpkg --print-architecture) \
+    && if [ "$ARCH" = "arm64" ]; then \
+         echo "deb http://openresty.org/package/arm64/debian bookworm openresty" > /etc/apt/sources.list.d/openresty.list; \
+       else \
+         echo "deb http://openresty.org/package/debian bookworm openresty" > /etc/apt/sources.list.d/openresty.list; \
+       fi \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends openresty \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# ----------------------------------------
+# Install additional dependencies
+# ----------------------------------------
+RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     git \
     apache2-utils \
     ripgrep \
-    libgcc \
-    libstdc++ \
-    wget \
-    gnupg
-
-# ----------------------------------------
-# Install OpenResty
-# Note: Using OpenResty's Alpine packages
-# ----------------------------------------
-
-# Add OpenResty's public key
-RUN wget -O /etc/apk/keys/admin@openresty.com-5ea678a6.rsa.pub \
-    'http://openresty.org/package/admin@openresty.com-5ea678a6.rsa.pub'
-
-# Add OpenResty repository (using v3.18 packages - most recent officially supported)
-RUN echo "http://openresty.org/package/alpine/v3.18/main" >> /etc/apk/repositories
-
-# Install OpenResty
-RUN apk add --no-cache openresty
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # ----------------------------------------
 # Install OpenCode via npm
