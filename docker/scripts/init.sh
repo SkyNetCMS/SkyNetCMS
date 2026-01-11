@@ -1,4 +1,8 @@
 #!/bin/bash
+# ============================================
+# SkyNetCMS - Container Initialization
+# ============================================
+
 set -e
 
 echo "============================================"
@@ -9,21 +13,21 @@ echo "============================================"
 # 1. Validate required environment variables
 # ----------------------------------------
 if [ -z "$ADMIN_USER" ]; then
-    echo "ERROR: ADMIN_USER environment variable is required"
+    echo "[ERROR] ADMIN_USER environment variable is required"
     exit 1
 fi
 
 if [ -z "$ADMIN_PASS" ]; then
-    echo "ERROR: ADMIN_PASS environment variable is required"
+    echo "[ERROR] ADMIN_PASS environment variable is required"
     exit 1
 fi
 
 echo "[OK] Environment variables validated"
 
 # ----------------------------------------
-# 2. Initialize data directory
+# 2. Initialize data directories
 # ----------------------------------------
-mkdir -p /data/repo/src /data/repo/dist
+mkdir -p /data/repo/src /data/repo/dist /data/admin /run
 
 # ----------------------------------------
 # 3. First-run: Copy template if repo is empty
@@ -44,33 +48,37 @@ if [ ! -f "/data/repo/src/index.html" ]; then
 fi
 
 # ----------------------------------------
-# 4. Run authentication setup (stub for M2)
+# 4. Setup admin placeholder if not exists
 # ----------------------------------------
-if [ -f "/scripts/setup-auth.sh" ]; then
-    /scripts/setup-auth.sh
+if [ ! -f "/data/admin/index.html" ]; then
+    cp /opt/admin-placeholder/index.html /data/admin/index.html
+    echo "[OK] Admin placeholder created"
 fi
 
 # ----------------------------------------
-# 5. Run initial build (stub for M4)
+# 5. Run authentication setup
 # ----------------------------------------
-if [ -f "/scripts/build-site.sh" ]; then
-    /scripts/build-site.sh
-fi
+/scripts/setup-auth.sh
 
 # ----------------------------------------
-# 6. Start services
+# 6. Run initial build (copy src to dist)
 # ----------------------------------------
-echo "[INFO] Starting services..."
+/scripts/build-site.sh
 
-# For M1: Just keep container running
-# In M2: Will start nginx/openresty
-# In M3: Will start OpenCode server + nginx
-
+# ----------------------------------------
+# 7. Start OpenResty (nginx)
+# ----------------------------------------
+echo "[INFO] Starting OpenResty..."
 echo "============================================"
 echo "  SkyNetCMS is running!"
-echo "  Admin: $ADMIN_USER"
-echo "  Title: ${SITE_TITLE:-SkyNetCMS}"
+echo "  "
+echo "  Public site:  http://localhost/"
+echo "  Admin panel:  http://localhost/sn_admin/"
+echo "  Health check: http://localhost/health"
+echo "  "
+echo "  Admin user: $ADMIN_USER"
+echo "  Site title: ${SITE_TITLE:-SkyNetCMS}"
 echo "============================================"
 
-# Keep container running (will be replaced with nginx in M2)
-tail -f /dev/null
+# Start OpenResty in foreground (keeps container running)
+exec openresty -g 'daemon off;'

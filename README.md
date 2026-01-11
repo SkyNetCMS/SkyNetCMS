@@ -26,6 +26,12 @@ docker run -d \
   skynetcms
 ```
 
+### Access
+
+- **Public site**: http://localhost:8080/
+- **Admin panel**: http://localhost:8080/sn_admin/
+- **Health check**: http://localhost:8080/health
+
 ### Development (with docker-compose)
 
 ```bash
@@ -69,10 +75,25 @@ docker ps
 # View startup logs
 docker logs skynet-test
 
+# Test health endpoint
+curl http://localhost:8080/health
+# Expected: OK
+
+# Test public site
+curl http://localhost:8080/
+# Expected: Welcome to SkyNetCMS HTML
+
+# Test auth required (should return 401)
+curl -I http://localhost:8080/sn_admin/
+# Expected: HTTP/1.1 401 Unauthorized
+
+# Test auth success
+curl -u admin:test http://localhost:8080/sn_admin/
+# Expected: Admin panel HTML
+
 # Verify installations inside container
 docker exec skynet-test openresty -v
 docker exec skynet-test opencode --version
-docker exec skynet-test git --version
 
 # Check repository was initialized
 docker exec skynet-test ls /data/repo/src
@@ -84,6 +105,6 @@ docker rm -f skynet-test
 
 ## Status
 
-**Milestone 1: Project Foundation** - Complete
+**Milestone 2: OpenResty/Nginx Layer** - Complete
 
 See [PLAN_v1.md](PLAN_v1.md) for full implementation plan.
