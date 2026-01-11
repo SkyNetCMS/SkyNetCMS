@@ -12,6 +12,7 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 |-----------|--------|----------|
 | M1: Project Foundation | **Complete** | 4 features |
 | M2: OpenResty/Nginx Layer | **Complete** | 4 features |
+| M2.5: First-Time Registration | **Complete** | 7 features |
 | M3: OpenCode Integration | Not Started | 3 features |
 | M4: Initial Template & Content Serving | Not Started | 4 features |
 | M5: Integration & E2E Testing | Not Started | 3 features |
@@ -115,6 +116,82 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 - [x] Valid credentials grant access (ready to test)
 - [x] Invalid credentials return 401 (ready to test)
 - [x] Health check endpoint `/health` returns OK (ready to test)
+
+---
+
+## Milestone 2.5: First-Time Registration & Dynamic Authentication
+
+**Goal**: Allow first-time admin setup via registration form when env vars not provided, while maintaining backward compatibility with env var approach.
+
+### Feature 2.5.1: Lua Auth Infrastructure
+- [x] Create `nginx/lua/` directory
+- [x] Create `nginx/lua/auth.lua` module with helper functions:
+  - [x] `is_admin_configured()` - checks if `/data/.htpasswd` exists
+  - [x] `get_client_ip()` - for rate limiting
+- [x] Add `lua_shared_dict` to nginx.conf for rate limiting state
+- [x] Update nginx.conf to set `lua_package_path` for custom modules
+
+### Feature 2.5.2: Registration Page
+- [x] Create `templates/admin-registration/` directory
+- [x] Create `templates/admin-registration/index.html` with:
+  - [x] Clean, simple registration form
+  - [x] Username field
+  - [x] Password field (min 8 characters)
+  - [x] Confirm password field
+  - [x] Client-side validation (password match, min length)
+  - [x] SkyNetCMS branding
+  - [x] Error message display area
+- [x] Create `templates/admin-registration/style.css` (inline or embedded)
+- [x] Copy to `/opt/admin-registration/` in Dockerfile
+
+### Feature 2.5.3: Registration Handler (Lua)
+- [x] Create `nginx/lua/registration.lua` module:
+  - [x] Parse POST form data
+  - [x] Validate: non-empty username, password min 8 chars, passwords match
+  - [x] Rate limit: max 5 attempts per minute per IP
+  - [x] Generate htpasswd entry via `os.execute("htpasswd -cbB ...")` 
+  - [x] Write to `/data/.htpasswd`
+  - [x] Return JSON success/error response
+- [x] Create location `/sn_admin/register` in nginx config:
+  - [x] POST only
+  - [x] `content_by_lua_file` pointing to registration handler
+  - [x] Only accessible when admin not configured
+
+### Feature 2.5.4: Dynamic Auth Routing
+- [x] Update `nginx/conf.d/default.conf` for `/sn_admin/` location:
+  - [x] Use `rewrite_by_lua_block` to check admin state (runs before auth_basic)
+  - [x] If NOT configured: redirect to registration
+  - [x] If configured: enforce `auth_basic`
+- [x] Create location `/sn_admin/setup/` to serve registration page:
+  - [x] Only accessible when admin not configured
+  - [x] Redirects to /sn_admin/ when already configured
+- [x] Ensure `/sn_admin/` (main admin) still uses auth_basic when configured
+
+### Feature 2.5.5: Update init.sh for Optional Credentials
+- [x] Make `ADMIN_USER` and `ADMIN_PASS` environment variables optional
+- [x] Update validation logic:
+  - [x] If BOTH env vars provided → run `setup-auth.sh` (pre-configured)
+  - [x] If NEITHER provided → skip auth setup, log "First-time setup required"
+  - [x] If only ONE provided → error and exit (invalid state)
+- [x] Update startup messages to reflect auth state
+- [x] Set proper permissions on /data for nginx worker (nobody:nogroup)
+
+### Feature 2.5.6: Dockerfile Updates
+- [x] Copy `nginx/lua/` to `/etc/nginx/lua/` in container
+- [x] Copy `templates/admin-registration/` to `/opt/admin-registration/`
+- [x] Ensure lua modules are accessible
+
+### Feature 2.5.7: Verification
+- [x] Test: Container WITH env vars → htpasswd pre-created, auth works immediately
+- [x] Test: Container WITHOUT env vars → registration page at `/sn_admin/setup/`
+- [x] Test: Registration with valid input → htpasswd created, redirected to admin
+- [x] Test: Registration with mismatched passwords → error shown
+- [x] Test: Registration with short password (<8) → error shown
+- [x] Test: After registration, `/sn_admin/setup/` redirects to `/sn_admin/`
+- [x] Test: After registration, `/sn_admin/` requires Basic Auth
+- [x] Test: Rate limiting prevents >5 attempts per minute
+- [x] Test: Container restart → credentials persist, auth works
+- [x] Test: Volume persistence across container recreate
 
 ---
 
@@ -299,6 +376,13 @@ These items are tracked for future implementation after MVP launch.
 - [ ] Usage analytics
 - [ ] Error tracking integration
 
+### Authentication Enhancements
+- [ ] Session-based authentication with custom login form (nicer UX)
+- [ ] Logout functionality
+- [ ] Password reset mechanism
+- [ ] "Remember me" functionality
+- [ ] Admin password change via admin panel UI
+
 ### Collaboration (Major Feature)
 - [ ] Multiple admin users
 - [ ] Role-based permissions
@@ -319,7 +403,8 @@ These items are tracked for future implementation after MVP launch.
 ### Dependencies
 
 - **M2 depends on M1**: Need Dockerfile before configuring nginx
-- **M3 depends on M2**: Need nginx routing before OpenCode integration
+- **M2.5 depends on M2**: Need nginx/OpenResty working before adding Lua auth
+- **M3 depends on M2.5**: Need auth infrastructure before OpenCode integration
 - **M4 depends on M3**: Need OpenCode working before testing content pipeline
 - **M5 depends on M4**: Need all components for E2E testing
 - **M6 depends on M5**: Need working system before documentation
@@ -330,11 +415,12 @@ These items are tracked for future implementation after MVP launch.
 |-----------|------------------|
 | M1: Project Foundation | 2-4 hours |
 | M2: OpenResty/Nginx Layer | 4-6 hours |
+| M2.5: First-Time Registration | 3-5 hours |
 | M3: OpenCode Integration | 6-10 hours |
 | M4: Initial Template & Content | 4-6 hours |
 | M5: Integration & Testing | 4-6 hours |
 | M6: Documentation & Polish | 2-4 hours |
-| **Total MVP** | **22-36 hours** |
+| **Total MVP** | **25-41 hours** |
 
 ---
 
@@ -345,6 +431,8 @@ These items are tracked for future implementation after MVP launch.
 | 2026-01-09 | Initial plan created |
 | 2026-01-10 | M1 Complete: Project foundation with Node.js 24 Alpine + OpenResty + OpenCode |
 | 2026-01-10 | M2 Complete: OpenResty/Nginx layer with routing, static serving, htpasswd auth |
+| 2026-01-10 | M2.5 Planned: First-time registration flow with optional env vars |
+| 2026-01-11 | M2.5 Complete: First-time registration with Lua auth, rate limiting |
 
 ---
 

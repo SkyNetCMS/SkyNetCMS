@@ -1,3 +1,8 @@
+---
+id: AGENTS
+aliases: []
+tags: []
+---
 # AGENTS.md - AI Development Guidelines for SkyNetCMS
 
 This document provides guidelines for AI assistants (OpenCode, Claude, etc.) working on the **SkyNetCMS** project development.
@@ -71,10 +76,13 @@ SkyNetCMS/
 │
 ├── nginx/
 │   ├── nginx.conf         # Main nginx configuration
+│   ├── admin-registration/ # First-time admin setup page
+│   │   └── index.html     # Registration form
 │   ├── conf.d/
 │   │   └── default.conf   # Site routing rules
 │   └── lua/
-│       └── auth.lua       # Lua scripts for authentication
+│       ├── auth.lua       # Auth helper module
+│       └── registration.lua # Registration POST handler
 │
 ├── opencode/
 │   └── config/            # → Copied to ~/.config/opencode/ in container
@@ -111,6 +119,7 @@ OpenCode reads both: system config from `~/.config/opencode/` and repo-level fro
 - **Lua**: Follow OpenResty best practices, minimal dependencies
 - **Shell scripts**: Use `#!/bin/bash`, include error handling (`set -e`)
 - **Documentation**: Keep README.md updated with any deployment changes
+- **Planning**: Always keep ./PLAN_v1.md (and next versions) updated. Document any defered for future phase features
 
 ### 3.2 File Naming
 
@@ -236,10 +245,12 @@ OpenCode reads both: system config from `~/.config/opencode/` and repo-level fro
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `ADMIN_USER` | Yes | - | htpasswd username |
-| `ADMIN_PASS` | Yes | - | htpasswd password |
+| `ADMIN_USER` | No* | - | htpasswd username |
+| `ADMIN_PASS` | No* | - | htpasswd password |
 | `SITE_TITLE` | No | SkyNetCMS | Default site title |
 | `BUILD_CMD` | No | `./build.sh` | Custom build command |
+
+*`ADMIN_USER` and `ADMIN_PASS` are optional. If both are provided, admin is pre-configured. If neither is provided, a first-time registration form will be shown at `/sn_admin/`. Providing only one will cause an error.
 
 ---
 

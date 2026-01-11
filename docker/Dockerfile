@@ -74,13 +74,18 @@ ENV BUILD_CMD="/scripts/build-site.sh"
 # ----------------------------------------
 # Create directory structure
 # ----------------------------------------
-RUN mkdir -p /data/repo/src /data/repo/dist /data/admin /scripts /etc/nginx/conf.d /run
+RUN mkdir -p /data/repo/src /data/repo/dist /data/admin /scripts /etc/nginx/conf.d /etc/nginx/lua /run
 
 # ----------------------------------------
 # Copy nginx configuration
 # ----------------------------------------
 COPY nginx/nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
 COPY nginx/conf.d/ /etc/nginx/conf.d/
+
+# ----------------------------------------
+# Copy Lua scripts for authentication
+# ----------------------------------------
+COPY nginx/lua/ /etc/nginx/lua/
 
 # ----------------------------------------
 # Copy scripts
@@ -97,6 +102,11 @@ COPY templates/default/ /opt/templates/default/
 # Copy admin placeholder
 # ----------------------------------------
 COPY templates/admin-placeholder/ /opt/admin-placeholder/
+
+# ----------------------------------------
+# Copy admin registration page
+# ----------------------------------------
+COPY nginx/admin-registration/ /opt/admin-registration/
 
 # ----------------------------------------
 # Copy OpenCode system config (empty for now - M3)

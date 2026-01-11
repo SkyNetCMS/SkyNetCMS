@@ -16,6 +16,8 @@ AI-Powered Conversational CMS - Build websites through chat.
 
 ### Run
 
+**Option 1: With pre-configured admin (via environment variables)**
+
 ```bash
 docker run -d \
   -p 8080:80 \
@@ -26,10 +28,23 @@ docker run -d \
   skynetcms
 ```
 
+**Option 2: First-time registration flow (no environment variables)**
+
+```bash
+docker run -d \
+  -p 8080:80 \
+  -v skynet-data:/data \
+  --name skynetcms \
+  skynetcms
+```
+
+Then visit http://localhost:8080/sn_admin/ to create your admin account.
+
 ### Access
 
 - **Public site**: http://localhost:8080/
 - **Admin panel**: http://localhost:8080/sn_admin/
+- **Admin setup** (first-time only): http://localhost:8080/sn_admin/setup/
 - **Health check**: http://localhost:8080/health
 
 ### Development (with docker-compose)
@@ -56,9 +71,11 @@ docker rm skynetcms
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `ADMIN_USER` | Yes | - | Admin username |
-| `ADMIN_PASS` | Yes | - | Admin password |
+| `ADMIN_USER` | No* | - | Admin username |
+| `ADMIN_PASS` | No* | - | Admin password |
 | `SITE_TITLE` | No | SkyNetCMS | Site title |
+
+*If both `ADMIN_USER` and `ADMIN_PASS` are provided, admin is pre-configured. If neither is provided, a registration form will be shown at first access to `/sn_admin/`. Providing only one will cause an error.
 
 ## Verification (after build)
 
@@ -105,6 +122,6 @@ docker rm -f skynet-test
 
 ## Status
 
-**Milestone 2: OpenResty/Nginx Layer** - Complete
+**Milestone 2.5: First-Time Registration** - Complete
 
 See [PLAN_v1.md](PLAN_v1.md) for full implementation plan.
