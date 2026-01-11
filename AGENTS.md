@@ -119,7 +119,7 @@ OpenCode reads both: system config from `~/.config/opencode/` and repo-level fro
 - **Lua**: Follow OpenResty best practices, minimal dependencies
 - **Shell scripts**: Use `#!/bin/bash`, include error handling (`set -e`)
 - **Documentation**: Keep README.md updated with any deployment changes
-- **Planning**: Always keep ./PLAN_v1.md (and next versions) updated. Document any defered for future phase features
+- **Planning**: Keep PLAN_v1.md updated for tactical MVP implementation. Future phase features are tracked in PRD_v1.md (Section 9)
 
 ### 3.2 File Naming
 

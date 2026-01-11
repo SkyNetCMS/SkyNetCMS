@@ -313,43 +313,51 @@ The Minimum Viable Product delivers:
 
 ## 9. Future Phase Backlog
 
-Features explicitly deferred from MVP:
+Features explicitly deferred from MVP. This is the canonical list of future enhancements.
 
 ### 9.1 Git & Version Control
-- [ ] Branch-per-session workflow
-- [ ] Merge to master = publish
-- [ ] Rollback to previous versions
+- [ ] Branch-per-session workflow (merge to master = publish)
+- [ ] Rollback to previous versions via chat
 - [ ] Push to external Git (GitHub, GitLab)
-- [ ] Visual diff comparison
+- [ ] Visual diff comparison in UI
 
 ### 9.2 User Interface Enhancements
 - [ ] File browser in admin panel
 - [ ] Visual element selection (service-injector integration)
 - [ ] Side-by-side preview panel
 - [ ] Slash commands (`/publish`, `/preview`, `/branch`)
+- [ ] Drag-and-drop file upload UI
 
 ### 9.3 Framework Support
-- [ ] Vue.js project scaffolding
-- [ ] React project scaffolding
+- [ ] Vue.js project scaffolding and build
+- [ ] React project scaffolding and build
 - [ ] Next.js/Nuxt.js SSR support
-- [ ] Custom build pipeline configuration
+- [ ] Custom build pipeline configuration UI
 
 ### 9.4 Hosting & Deployment
 - [ ] Custom domain configuration
-- [ ] Built-in SSL/HTTPS (Let's Encrypt)
+- [ ] Built-in SSL/HTTPS (Let's Encrypt integration)
 - [ ] Multi-site from single container
 - [ ] CDN integration
+- [ ] Automatic backup to cloud storage
 
-### 9.5 Operations
+### 9.5 Operations & Monitoring
 - [ ] Logging and monitoring dashboard
-- [ ] Backup/restore functionality
-- [ ] Health check endpoints
 - [ ] Usage analytics
+- [ ] Error tracking integration
 
-### 9.6 Collaboration
+### 9.6 Authentication Enhancements
+- [ ] Session-based authentication with custom login form (nicer UX)
+- [ ] Logout functionality
+- [ ] Password reset mechanism
+- [ ] "Remember me" functionality
+- [ ] Admin password change via admin panel UI
+
+### 9.7 Collaboration
 - [ ] Multiple admin users
 - [ ] Role-based permissions
 - [ ] Edit history / audit log
+- [ ] Real-time collaboration
 
 ---
 

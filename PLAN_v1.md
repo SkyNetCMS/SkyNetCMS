@@ -17,7 +17,8 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 | M4: Initial Template & Content Serving | Not Started | 4 features |
 | M5: Integration & E2E Testing | Not Started | 3 features |
 | M6: Documentation & MVP Polish | Not Started | 3 features |
-| M7: Future Phase (Backlog) | Deferred | Multiple items |
+
+> **Note**: Future phase features are tracked in [PRD_v1.md](PRD_v1.md#9-future-phase-backlog), not in this tactical plan.
 
 ---
 
@@ -335,59 +336,6 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
   - [ ] Generated website visible at `/`
   - [ ] Changes persist across container restarts
 - [ ] Update PLAN_v1.md with completion status
-
----
-
-## Milestone 7: Future Phase (Backlog)
-
-**Status**: Deferred - not part of MVP
-
-These items are tracked for future implementation after MVP launch.
-
-### Git & Version Control
-- [ ] Branch-per-session workflow (session creates branch, merge to publish)
-- [ ] Rollback to previous versions via chat
-- [ ] Push to external Git (GitHub, GitLab)
-- [ ] Visual diff comparison in UI
-
-### User Interface Enhancements
-- [ ] File browser in admin panel
-- [ ] Visual element selection (service-injector integration)
-- [ ] Side-by-side preview panel
-- [ ] Slash commands (`/publish`, `/preview`, `/branch`)
-- [ ] Drag-and-drop file upload UI
-
-### Framework Support
-- [ ] Vue.js project scaffolding and build
-- [ ] React project scaffolding and build
-- [ ] Next.js/Nuxt.js SSR support
-- [ ] Custom build pipeline configuration UI
-
-### Hosting & Deployment
-- [ ] Custom domain configuration
-- [ ] Built-in SSL/HTTPS (Let's Encrypt integration)
-- [ ] Multi-site from single container
-- [ ] CDN integration
-- [ ] Automatic backup to cloud storage
-
-### Operations & Monitoring
-- [ ] Logging dashboard
-- [ ] Health check endpoints (`/health`)
-- [ ] Usage analytics
-- [ ] Error tracking integration
-
-### Authentication Enhancements
-- [ ] Session-based authentication with custom login form (nicer UX)
-- [ ] Logout functionality
-- [ ] Password reset mechanism
-- [ ] "Remember me" functionality
-- [ ] Admin password change via admin panel UI
-
-### Collaboration (Major Feature)
-- [ ] Multiple admin users
-- [ ] Role-based permissions
-- [ ] Edit history / audit log
-- [ ] Real-time collaboration
 
 ---
 
