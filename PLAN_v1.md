@@ -133,8 +133,8 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 - [x] Update nginx.conf to set `lua_package_path` for custom modules
 
 ### Feature 2.5.2: Registration Page
-- [x] Create `templates/admin-registration/` directory
-- [x] Create `templates/admin-registration/index.html` with:
+- [x] Create `nginx/admin-registration/` directory
+- [x] Create `nginx/admin-registration/index.html` with:
   - [x] Clean, simple registration form
   - [x] Username field
   - [x] Password field (min 8 characters)
@@ -179,7 +179,7 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 
 ### Feature 2.5.6: Dockerfile Updates
 - [x] Copy `nginx/lua/` to `/etc/nginx/lua/` in container
-- [x] Copy `templates/admin-registration/` to `/opt/admin-registration/`
+- [x] Copy `nginx/admin-registration/` to `/opt/admin-registration/`
 - [x] Ensure lua modules are accessible
 
 ### Feature 2.5.7: Verification
