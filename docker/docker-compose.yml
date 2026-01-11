@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  skynetcms:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      - skynet-data:/data
+    environment:
+      - ADMIN_USER=admin
+      - ADMIN_PASS=changeme
+      - SITE_TITLE=My SkyNet Site
+    restart: unless-stopped
+
+volumes:
+  skynet-data:
+    driver: local
