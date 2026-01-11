@@ -40,7 +40,7 @@ fi
 # ----------------------------------------
 # 2. Initialize data directories
 # ----------------------------------------
-mkdir -p /data/repo/src /data/repo/dist /data/admin /run
+mkdir -p /data/repo/src /data/repo/dist /run
 
 # ----------------------------------------
 # 3. First-run: Copy template if repo is empty
@@ -70,12 +70,34 @@ chown -R nobody:nogroup /data
 chmod -R 755 /data
 
 # ----------------------------------------
-# 4. Setup admin placeholder if not exists
+# 4. Start OpenCode web server
 # ----------------------------------------
-if [ ! -f "/data/admin/index.html" ]; then
-    cp /opt/admin-placeholder/index.html /data/admin/index.html
-    echo "[OK] Admin placeholder created"
+echo "[INFO] Starting OpenCode web server..."
+cd /data/repo
+
+# Start OpenCode web server in background
+# Port 3000, localhost only (nginx will proxy to it)
+opencode web --port 3000 --hostname 127.0.0.1 > /var/log/opencode.log 2>&1 &
+OPENCODE_PID=$!
+echo "[INFO] OpenCode started with PID: $OPENCODE_PID"
+
+# Wait for OpenCode to be ready (max 30 seconds)
+echo "[INFO] Waiting for OpenCode to initialize..."
+OPENCODE_READY=false
+for i in $(seq 1 30); do
+    if curl -s http://127.0.0.1:3000/global/health > /dev/null 2>&1; then
+        echo "[OK] OpenCode is ready (took ${i}s)"
+        OPENCODE_READY=true
+        break
+    fi
+    sleep 1
+done
+
+if [ "$OPENCODE_READY" = "false" ]; then
+    echo "[WARN] OpenCode may not be fully ready after 30s, continuing anyway..."
 fi
+
+cd /
 
 # ----------------------------------------
 # 5. Run authentication setup (if credentials provided)
@@ -107,6 +129,7 @@ echo "  "
 echo "  Public site:  http://localhost/"
 echo "  Admin panel:  http://localhost/sn_admin/"
 echo "  Health check: http://localhost/health"
+echo "  OpenCode log: /var/log/opencode.log"
 echo "  "
 if [ "$AUTH_MODE" = "preconfigured" ]; then
     echo "  Admin user: $ADMIN_USER"
@@ -121,4 +144,5 @@ echo "  Site title: ${SITE_TITLE:-SkyNetCMS}"
 echo "============================================"
 
 # Start OpenResty in foreground (keeps container running)
+# OpenCode continues running in background
 exec openresty -g 'daemon off;'

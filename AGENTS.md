@@ -18,28 +18,48 @@ This document provides guidelines for AI assistants (OpenCode, Claude, etc.) wor
 ### Core Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                     Docker Container                         │
-│  ┌─────────────────────────────────────────────────────┐    │
-│  │              OpenResty (Nginx + Lua)                 │    │
-│  │  ┌─────────────┐         ┌────────────────────┐     │    │
-│  │  │     /       │         │    /sn_admin/      │     │    │
-│  │  │  (static)   │         │  (htpasswd auth)   │     │    │
-│  │  └──────┬──────┘         └─────────┬──────────┘     │    │
-│  └─────────┼──────────────────────────┼────────────────┘    │
-│            ▼                          ▼                      │
-│  ┌─────────────────┐         ┌─────────────────┐            │
-│  │  Content from   │         │    OpenCode     │            │
-│  │  master branch  │         │   (Web UI in    │            │
-│  │   (built site)  │         │    iframe)      │            │
-│  └─────────────────┘         └────────┬────────┘            │
-│                                       │                      │
-│                              ┌────────▼────────┐            │
-│                              │   Git Repo      │            │
-│                              │   (on volume)   │            │
-│                              └─────────────────┘            │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                      Docker Container                            │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │               OpenResty (Nginx + Lua)                      │  │
+│  │  ┌─────────────┐    ┌──────────────┐   ┌───────────────┐  │  │
+│  │  │     /       │    │ /sn_admin/   │   │ /sn_admin/oc/ │  │  │
+│  │  │  (static)   │    │ (dashboard)  │   │  (OpenCode)   │  │  │
+│  │  └──────┬──────┘    └──────┬───────┘   └───────┬───────┘  │  │
+│  └─────────┼─────────────────┼───────────────────┼───────────┘  │
+│            ▼                 ▼                   ▼               │
+│  ┌─────────────────┐  ┌─────────────────────────────────────┐   │
+│  │  Built site     │  │      Admin Dashboard (SPA)          │   │
+│  │  /data/repo/    │  │  ┌─────────────────────────────┐    │   │
+│  │  dist/          │  │  │   Main IFRAME: /            │    │   │
+│  └─────────────────┘  │  │   (website preview)         │    │   │
+│                       │  └─────────────────────────────┘    │   │
+│                       │  ┌─────────────────┐                │   │
+│                       │  │ Floating Window │ ← OpenCode     │   │
+│                       │  │ /sn_admin/oc/   │   Web UI       │   │
+│                       │  └─────────────────┘                │   │
+│                       └────────────────────────────┬────────┘   │
+│                                                    │            │
+│                       ┌────────────────────────────▼────────┐   │
+│                       │  OpenCode Server (port 3000)        │   │
+│                       │  Working dir: /data/repo/           │   │
+│                       └────────────────────────────┬────────┘   │
+│                                                    │            │
+│                       ┌────────────────────────────▼────────┐   │
+│                       │          Git Repo                   │   │
+│                       │          /data/repo/                │   │
+│                       └─────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
 ```
+
+### Admin Dashboard Architecture
+
+The admin panel uses [service-injector](https://github.com/OrienteerBAP/service-injector) in **wrapper mode**:
+
+- **Main IFRAME**: Displays the live website (`/`) for real-time preview
+- **Floating Window**: Contains OpenCode AI interface (`/sn_admin/oc/`)
+- **Features**: Draggable, resizable, dockable to screen edges
+- **Toolbar**: Refresh preview button, future element selector
 
 ### Key Technical Decisions
 
@@ -76,6 +96,8 @@ SkyNetCMS/
 │
 ├── nginx/
 │   ├── nginx.conf         # Main nginx configuration
+│   ├── admin-dashboard/   # Admin SPA with service-injector
+│   │   └── index.html     # Dashboard with iframe + floating window
 │   ├── admin-registration/ # First-time admin setup page
 │   │   └── index.html     # Registration form
 │   ├── conf.d/
@@ -86,9 +108,9 @@ SkyNetCMS/
 │
 ├── opencode/
 │   └── config/            # → Copied to ~/.config/opencode/ in container
-│       ├── agents/        # System-level agent definitions
-│       ├── skills/        # System-level custom skills
-│       └── mcp/           # System-level MCP configurations
+│       ├── opencode.json  # Minimal server configuration
+│       ├── agent/         # System-level agent definitions (future)
+│       └── skill/         # System-level custom skills (future)
 │
 └── templates/
     └── default/           # Default static template (MVP)
@@ -154,7 +176,9 @@ OpenCode reads both: system config from `~/.config/opencode/` and repo-level fro
 
 **Routing logic**:
 - `/` → Serve static content from `/data/repo/dist/`
-- `/sn_admin/` → htpasswd auth → proxy to OpenCode UI
+- `/sn_admin/` → htpasswd auth → Admin Dashboard SPA
+- `/sn_admin/oc/` → htpasswd auth → Proxy to OpenCode Web UI
+- `/sn_admin/setup/` → First-time registration (when no admin configured)
 
 ### 4.2 OpenCode Integration
 
@@ -306,7 +330,7 @@ OpenCode reads both: system config from `~/.config/opencode/` and repo-level fro
 
 - [OpenCode Documentation](https://opencode.ai/docs)
 - [OpenResty Documentation](https://openresty.org/en/docs.html)
-- [service-injector Library](https://github.com/OrienteerBAP/service-injector) (for future visual selection)
+- [service-injector Library](https://github.com/OrienteerBAP/service-injector) (admin dashboard wrapper)
 
 ---
 

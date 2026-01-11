@@ -13,7 +13,8 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 | M1: Project Foundation | **Complete** | 4 features |
 | M2: OpenResty/Nginx Layer | **Complete** | 4 features |
 | M2.5: First-Time Registration | **Complete** | 7 features |
-| M3: OpenCode Integration | Not Started | 3 features |
+| M3: OpenCode Integration | **Complete** | 6 features |
+| M3.5: Initial Branding & Styling | Not Started | 7 features |
 | M4: Initial Template & Content Serving | Not Started | 4 features |
 | M5: Integration & E2E Testing | Not Started | 3 features |
 | M6: Documentation & MVP Polish | Not Started | 3 features |
@@ -198,34 +199,88 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 
 ## Milestone 3: OpenCode Integration
 
-**Goal**: Embed OpenCode web UI in the admin panel.
+**Goal**: Embed OpenCode web UI in admin panel using service-injector wrapper mode.
 
-### Feature 3.1: OpenCode Installation
-- [ ] Research OpenCode Docker/installation requirements
-- [ ] Add OpenCode installation to Dockerfile
-- [ ] Configure OpenCode to run as service
-- [ ] Determine OpenCode's web UI port
-- [ ] Update `docker/scripts/init.sh` to start OpenCode
+### Feature 3.1: OpenCode Service Setup
+- [x] Update `docker/scripts/init.sh` to start `opencode web` in background
+- [x] Configure to run in `/data/repo/` directory
+- [x] Health check loop (max 30s, proceeds when ready)
+- [x] Port 3000, localhost only (nginx proxies to it)
 
-### Feature 3.2: Nginx Proxy to OpenCode
-- [ ] Update `/sn_admin/` location to proxy to OpenCode
-  - [ ] `proxy_pass` to OpenCode web UI
-  - [ ] WebSocket support for real-time features
-  - [ ] Preserve authentication
-- [ ] Handle OpenCode static assets
-- [ ] Verify OpenCode UI loads after authentication
+### Feature 3.2: Nginx Proxy Configuration
+- [x] Add `/sn_admin/oc/` location with proxy to OpenCode
+- [x] WebSocket support (`Upgrade`, `Connection` headers)
+- [x] Extended timeouts (300s for AI responses)
+- [x] Update `/sn_admin/` to serve admin dashboard SPA
 
-### Feature 3.3: OpenCode Configuration for SkyNetCMS
-- [ ] Configure OpenCode working directory to `/data/repo/`
-- [ ] Create system-level config in `opencode/config/`
-  - [ ] System prompt tailored for web development
-  - [ ] File operation permissions
-  - [ ] Git integration
-- [ ] Create repo-level config in `templates/default/.opencode/`
-  - [ ] Site-specific agent configuration
-  - [ ] AGENTS.md for site building context
-- [ ] Configure OpenCode to auto-commit changes
-- [ ] Verify AI can read/write files in repo
+### Feature 3.3: Admin Dashboard SPA
+- [x] Create `nginx/admin-dashboard/` directory
+- [x] Implement wrapper mode with service-injector (CDN)
+- [x] Main iframe: `/` (website preview)
+- [x] Floating window: `/sn_admin/oc/` (OpenCode UI)
+- [x] Open by default, dockable, resizable
+- [x] Custom toolbar in floating window header (refresh button, future element selector)
+
+### Feature 3.4: Minimal OpenCode Config
+- [x] Create `opencode/config/opencode.json`
+- [x] Server settings only (port 3000, hostname 127.0.0.1)
+- [x] Disable autoupdate and sharing for container environment
+
+### Feature 3.5: Dockerfile Updates
+- [x] Copy `opencode/config/` to `/root/.config/opencode/`
+- [x] Copy `nginx/admin-dashboard/` to `/opt/admin-dashboard/`
+- [x] Remove old `templates/admin-placeholder/` handling
+
+### Feature 3.6: Verification
+- [x] Container builds successfully
+- [x] OpenCode starts and health check passes
+- [x] Admin dashboard loads with iframe + floating window
+- [x] Website preview visible in main iframe
+- [x] OpenCode UI functional in floating window
+- [x] Drag, resize, dock work as expected
+
+---
+
+## Milestone 3.5: Initial Branding & Styling
+
+**Goal**: Establish foundational branding for SkyNetCMS admin interface.
+
+### Feature 3.5.1: Color Palette
+- [ ] Define CSS custom properties (variables)
+- [ ] Primary, secondary, accent colors
+- [ ] Text colors (normal, muted, inverse)
+- [ ] Border and shadow colors
+- [ ] Apply to admin dashboard
+
+### Feature 3.5.2: Floating Window Styling
+- [ ] Custom header bar with SkyNetCMS branding
+- [ ] Action buttons styling (refresh, future element selector)
+- [ ] Border radius, shadows
+- [ ] Resize handles styling
+
+### Feature 3.5.3: Tab Styling
+- [ ] Custom tab appearance when window collapsed
+- [ ] Icon or logo in tab
+- [ ] Hover states
+
+### Feature 3.5.4: Admin Toolbar (Optional)
+- [ ] Top toolbar with logo and quick actions
+- [ ] Or integrate into floating window header
+
+### Feature 3.5.5: Logo
+- [ ] Create/add SkyNetCMS logo placeholder
+- [ ] SVG format for scalability
+- [ ] Document how to customize
+
+### Feature 3.5.6: Typography
+- [ ] Select system font stack or web font
+- [ ] Font sizes for headers, body, buttons
+- [ ] Apply consistently
+
+### Feature 3.5.7: Documentation
+- [ ] Document CSS variables for customization
+- [ ] Document how to add custom themes
+- [ ] Document logo replacement process
 
 ---
 
@@ -353,7 +408,8 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 - **M2 depends on M1**: Need Dockerfile before configuring nginx
 - **M2.5 depends on M2**: Need nginx/OpenResty working before adding Lua auth
 - **M3 depends on M2.5**: Need auth infrastructure before OpenCode integration
-- **M4 depends on M3**: Need OpenCode working before testing content pipeline
+- **M3.5 depends on M3**: Need OpenCode dashboard working before branding
+- **M4 depends on M3.5**: Need branded dashboard before testing content pipeline
 - **M5 depends on M4**: Need all components for E2E testing
 - **M6 depends on M5**: Need working system before documentation
 
@@ -365,10 +421,11 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 | M2: OpenResty/Nginx Layer | 4-6 hours |
 | M2.5: First-Time Registration | 3-5 hours |
 | M3: OpenCode Integration | 6-10 hours |
+| M3.5: Initial Branding | 2-3 hours |
 | M4: Initial Template & Content | 4-6 hours |
 | M5: Integration & Testing | 4-6 hours |
 | M6: Documentation & Polish | 2-4 hours |
-| **Total MVP** | **25-41 hours** |
+| **Total MVP** | **27-44 hours** |
 
 ---
 
@@ -381,6 +438,8 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 | 2026-01-10 | M2 Complete: OpenResty/Nginx layer with routing, static serving, htpasswd auth |
 | 2026-01-10 | M2.5 Planned: First-time registration flow with optional env vars |
 | 2026-01-11 | M2.5 Complete: First-time registration with Lua auth, rate limiting |
+| 2026-01-11 | M3 Complete: OpenCode integration with service-injector wrapper mode dashboard |
+| 2026-01-11 | M3.5 Added: New milestone for initial branding & styling |
 
 ---
 

@@ -74,7 +74,7 @@ ENV BUILD_CMD="/scripts/build-site.sh"
 # ----------------------------------------
 # Create directory structure
 # ----------------------------------------
-RUN mkdir -p /data/repo/src /data/repo/dist /data/admin /scripts /etc/nginx/conf.d /etc/nginx/lua /run
+RUN mkdir -p /data/repo/src /data/repo/dist /scripts /etc/nginx/conf.d /etc/nginx/lua /run
 
 # ----------------------------------------
 # Copy nginx configuration
@@ -99,9 +99,9 @@ RUN chmod +x /scripts/*.sh
 COPY templates/default/ /opt/templates/default/
 
 # ----------------------------------------
-# Copy admin placeholder
+# Copy admin dashboard SPA
 # ----------------------------------------
-COPY templates/admin-placeholder/ /opt/admin-placeholder/
+COPY nginx/admin-dashboard/ /opt/admin-dashboard/
 
 # ----------------------------------------
 # Copy admin registration page
@@ -109,9 +109,10 @@ COPY templates/admin-placeholder/ /opt/admin-placeholder/
 COPY nginx/admin-registration/ /opt/admin-registration/
 
 # ----------------------------------------
-# Copy OpenCode system config (empty for now - M3)
+# Copy OpenCode system config
 # ----------------------------------------
-# COPY opencode/config/ /root/.config/opencode/
+RUN mkdir -p /root/.config/opencode
+COPY opencode/config/ /root/.config/opencode/
 
 # ----------------------------------------
 # Expose ports
