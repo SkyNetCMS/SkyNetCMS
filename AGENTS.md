@@ -176,9 +176,20 @@ OpenCode reads both: system config from `~/.config/opencode/` and repo-level fro
 
 **Routing logic**:
 - `/` → Serve static content from `/data/repo/dist/`
-- `/sn_admin/` → htpasswd auth → Admin Dashboard SPA
-- `/sn_admin/oc/` → htpasswd auth → Proxy to OpenCode Web UI
 - `/sn_admin/setup/` → First-time registration (when no admin configured)
+- `/sn_admin/register` → POST handler for registration
+- `/sn_admin/oc/` → htpasswd auth → Proxy to OpenCode Web UI
+- `/sn_admin/` → htpasswd auth → Admin Dashboard SPA (catch-all, MUST BE LAST)
+
+**IMPORTANT - Nginx Location Order**:
+The `/sn_admin/` location uses prefix matching and must be the LAST `/sn_admin/*` 
+location block in the config. More specific locations must come before it:
+```
+1. /sn_admin/setup/   - registration page (Lua access control)
+2. /sn_admin/register - POST handler (Lua content handler)
+3. /sn_admin/oc/      - OpenCode proxy (auth_basic)
+4. /sn_admin/         - dashboard catch-all (auth_basic) - MUST BE LAST
+```
 
 ### 4.2 OpenCode Integration
 
@@ -216,6 +227,101 @@ OpenCode reads both: system config from `~/.config/opencode/` and repo-level fro
 - Simple script that copies/processes files
 - Triggered after AI commits changes
 - Output to `/data/repo/dist/` directory
+
+### 4.5 Authentication Flow
+
+**Purpose**: Secure admin access with optional first-time registration.
+
+#### First-Time Setup Flow (No Admin Configured)
+
+```
+User visits /sn_admin/
+       │
+       ▼
+Nginx Lua: is_admin_configured()? → NO (no /data/.htpasswd)
+       │
+       ▼
+Redirect 302 → /sn_admin/setup/
+       │
+       ▼
+User sees registration form (username, password, confirm password)
+       │
+       ▼
+User submits form → POST /sn_admin/register
+       │
+       ▼
+Lua validates: non-empty username, password >= 8 chars, passwords match
+       │
+       ▼
+Lua creates /data/.htpasswd using htpasswd command
+       │
+       ▼
+JSON response: { "success": true, "redirect": "/sn_admin/" }
+       │
+       ▼
+JavaScript redirects to /sn_admin/
+```
+
+#### Subsequent Visits Flow (Admin Configured)
+
+```
+User visits /sn_admin/
+       │
+       ▼
+Nginx Lua: is_admin_configured()? → YES (/data/.htpasswd exists)
+       │
+       ▼
+Nginx: auth_basic "SkyNetCMS Admin"
+       │
+       ▼
+Browser prompts for Basic Auth credentials
+       │
+       ▼
+User enters username + password
+       │
+       ▼
+Nginx validates against /data/.htpasswd → SUCCESS
+       │
+       ▼
+Admin Dashboard SPA loads (service-injector wrapper mode)
+       │
+       ├── Main iframe loads: /  (public website, no auth needed)
+       │
+       └── Floating window iframe loads: /sn_admin/oc/
+              │
+              ▼
+       Browser automatically sends same Authorization header
+       (same origin, same realm "SkyNetCMS Admin")
+              │
+              ▼
+       Nginx validates at /sn_admin/oc/ → SUCCESS
+              │
+              ▼
+       OpenCode Web UI loads in floating window
+```
+
+#### Key Authentication Points
+
+| Endpoint | Auth Type | When Protected |
+|----------|-----------|----------------|
+| `/` | None | Never (public website) |
+| `/sn_admin/setup/` | Lua check | Only when admin NOT configured |
+| `/sn_admin/register` | Lua check | Only when admin NOT configured |
+| `/sn_admin/oc/` | htpasswd | Always when admin IS configured |
+| `/sn_admin/` | htpasswd | Always when admin IS configured |
+
+#### Browser Auth Header Propagation
+
+When the admin dashboard loads at `/sn_admin/`, it embeds OpenCode via iframe at 
+`/sn_admin/oc/`. The browser automatically sends the `Authorization` header to the
+iframe request because:
+
+1. **Same Origin**: Both URLs are on the same domain
+2. **Same Realm**: Both locations use `auth_basic "SkyNetCMS Admin"`
+3. **Same htpasswd**: Both validate against `/data/.htpasswd`
+
+This means the user only enters credentials ONCE when accessing `/sn_admin/`.
+The iframe to `/sn_admin/oc/` receives the same credentials automatically.
 
 ---
 
