@@ -420,6 +420,12 @@ The iframe to `/sn_admin/oc/` receives the same credentials automatically.
 - Check proxy configuration in nginx
 - Verify authentication is working
 
+### OpenCode shows "Could not connect to server"
+This error in the OpenCode floating window means API calls are failing.
+- Check if requests go to `/sn_admin/oc/global/health` (correct) or `/global/health` (wrong)
+- If wrong path, the base-path patch may not be applied - rebuild the Docker image
+- See `docker/patches/README.md` for details on the patch
+
 ### Changes not appearing at `/`
 - Check if build process ran
 - Verify `dist/` directory contents
