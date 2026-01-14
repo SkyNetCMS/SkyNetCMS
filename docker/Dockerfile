@@ -62,10 +62,19 @@ ENV PATH="/root/.bun/bin:${PATH}"
 # This uses a fork with PR #7625 that adds --base-path flag
 # PR: https://github.com/anomalyco/opencode/pull/7625
 # TODO: Switch back to 'npm install -g opencode-ai@latest' when PR is merged
+#
+# WORKAROUND: The PR has a bug in rewriteJsForBasePath() - the regex pattern
+# looks for `:window.location.origin)` but the minified JS has `:window.location.origin;`
+# We replace base-path.ts with a patched version before building.
+# See: docker/patches/README.md for details
+# TODO: Remove this patch when PR #7625 is fixed upstream
 # ----------------------------------------
+COPY docker/patches/base-path.ts /tmp/base-path.ts
 RUN git clone --depth 1 --branch feature/base-path-support \
         https://github.com/prokube/opencode.git /tmp/opencode \
     && cd /tmp/opencode \
+    && echo "Applying SkyNetCMS patch to fix base-path regex..." \
+    && cp /tmp/base-path.ts packages/opencode/src/util/base-path.ts \
     && bun install --frozen-lockfile \
     && cd packages/opencode \
     && bun run build --single \
@@ -77,7 +86,7 @@ RUN git clone --depth 1 --branch feature/base-path-support \
        fi \
     && chmod +x /usr/local/bin/opencode \
     && cd / \
-    && rm -rf /tmp/opencode
+    && rm -rf /tmp/opencode /tmp/base-path.ts
 
 # ----------------------------------------
 # Verify installations
