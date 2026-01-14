@@ -430,9 +430,22 @@ This error in the OpenCode floating window means API calls are failing.
 - See `docker/patches/README.md` for details on the patch
 
 ### Changes not appearing at `/`
-- Check if build process ran
-- Verify `dist/` directory contents
-- Check nginx is serving from correct directory
+The site is served from `/data/repo/dist/`, but AI edits files in `/data/repo/src/`.
+Changes require a build step to sync `src/` to `dist/`.
+
+**Current status (pre-M4):** Build does NOT auto-run. Manual steps:
+```bash
+# Run build to copy src/ to dist/
+docker exec <container> /scripts/build-site.sh
+
+# Then refresh browser or click Refresh button in admin toolbar
+```
+
+**Debugging steps:**
+- Check source was modified: `docker exec <container> cat /data/repo/src/index.html`
+- Check dist is stale: `docker exec <container> cat /data/repo/dist/index.html`
+- Run build manually: `docker exec <container> /scripts/build-site.sh`
+- Verify nginx serves from correct directory: should be `/data/repo/dist/`
 
 ### Git issues
 - Verify repo initialized: `git status` in `/data/repo`
