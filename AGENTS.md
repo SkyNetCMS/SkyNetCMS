@@ -89,6 +89,9 @@ SkyNetCMS/
 ├── docker/
 │   ├── Dockerfile         # Main container definition
 │   ├── docker-compose.yml # For local development/testing
+│   ├── patches/           # Source patches for OpenCode build
+│   │   ├── README.md      # Patch documentation & removal instructions
+│   │   └── base-path.ts   # Patched base-path.ts for reverse proxy support
 │   └── scripts/           # Scripts that run INSIDE container
 │       ├── init.sh        # Container startup/initialization
 │       ├── setup-auth.sh  # htpasswd generation
