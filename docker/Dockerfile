@@ -46,13 +46,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     apache2-utils \
     ripgrep \
+    unzip \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # ----------------------------------------
 # Install Bun (required for building OpenCode)
+# OpenCode requires specific version (1.3.5) per its package.json
 # ----------------------------------------
-RUN curl -fsSL https://bun.sh/install | bash
+RUN curl -fsSL https://bun.sh/install | bash -s "bun-v1.3.5"
 ENV PATH="/root/.bun/bin:${PATH}"
 
 # ----------------------------------------
@@ -66,8 +68,14 @@ RUN git clone --depth 1 --branch feature/base-path-support \
     && cd /tmp/opencode \
     && bun install --frozen-lockfile \
     && cd packages/opencode \
-    && bun run build \
-    && bun link --global \
+    && bun run build --single \
+    && ARCH=$(uname -m) \
+    && if [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then \
+         cp dist/opencode-linux-arm64/bin/opencode /usr/local/bin/opencode; \
+       else \
+         cp dist/opencode-linux-x64/bin/opencode /usr/local/bin/opencode; \
+       fi \
+    && chmod +x /usr/local/bin/opencode \
     && cd / \
     && rm -rf /tmp/opencode
 
