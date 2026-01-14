@@ -43,6 +43,8 @@
             right: 0;
             z-index: 10;
             height: 40px;
+            /* Allow drag events to pass through to #si-header underneath */
+            pointer-events: none;
         }
 
         .sn-toolbar-title {
@@ -52,11 +54,19 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            /* Keep pointer-events none so drag passes through to #si-header */
+            pointer-events: none;
+            cursor: move;
+            /* Prevent text selection */
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         .sn-toolbar-actions {
             display: flex;
             gap: 4px;
+            /* Re-enable pointer events for action buttons */
+            pointer-events: auto;
         }
 
         .sn-toolbar-btn {
@@ -86,6 +96,27 @@
         .sn-toolbar-btn[disabled] {
             opacity: 0.5;
             cursor: not-allowed;
+        }
+
+        .sn-toolbar-close {
+            background: transparent;
+            border: 1px solid #3a3a5a;
+            color: #ccc;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 4px 10px;
+            margin-left: 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            pointer-events: auto;
+            line-height: 1;
+        }
+
+        .sn-toolbar-close:hover {
+            background: #4a2a2a;
+            color: #ff8888;
+            border-color: #6a3a3a;
         }
 
         /* Offset the iframe content to account for toolbar */
@@ -167,6 +198,7 @@
                     <button class="sn-toolbar-btn" onclick="selectElement()" title="Select element (coming soon)" disabled>
                         <span>&#9678;</span> Select
                     </button>
+                    <button class="sn-toolbar-close" onclick="siToggleWindow()" title="Close window">X</button>
                 </div>
             `;
 
