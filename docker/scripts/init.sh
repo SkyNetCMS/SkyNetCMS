@@ -77,15 +77,17 @@ cd /data/repo
 
 # Start OpenCode web server in background
 # Port 3000, localhost only (nginx will proxy to it)
-opencode web --port 3000 --hostname 127.0.0.1 > /var/log/opencode.log 2>&1 &
+# --base-path allows OpenCode to work behind reverse proxy at /sn_admin/oc/
+opencode web --port 3000 --hostname 127.0.0.1 --base-path /sn_admin/oc > /var/log/opencode.log 2>&1 &
 OPENCODE_PID=$!
 echo "[INFO] OpenCode started with PID: $OPENCODE_PID"
 
 # Wait for OpenCode to be ready (max 30 seconds)
+# Health endpoint is at /sn_admin/oc/global/health with base-path
 echo "[INFO] Waiting for OpenCode to initialize..."
 OPENCODE_READY=false
 for i in $(seq 1 30); do
-    if curl -s http://127.0.0.1:3000/global/health > /dev/null 2>&1; then
+    if curl -s http://127.0.0.1:3000/sn_admin/oc/global/health > /dev/null 2>&1; then
         echo "[OK] OpenCode is ready (took ${i}s)"
         OPENCODE_READY=true
         break

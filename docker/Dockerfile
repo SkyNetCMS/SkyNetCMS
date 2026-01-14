@@ -50,9 +50,26 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # ----------------------------------------
-# Install OpenCode via npm
+# Install Bun (required for building OpenCode)
 # ----------------------------------------
-RUN npm install -g opencode-ai@latest
+RUN curl -fsSL https://bun.sh/install | bash
+ENV PATH="/root/.bun/bin:${PATH}"
+
+# ----------------------------------------
+# Build OpenCode from source with base-path support
+# This uses a fork with PR #7625 that adds --base-path flag
+# PR: https://github.com/anomalyco/opencode/pull/7625
+# TODO: Switch back to 'npm install -g opencode-ai@latest' when PR is merged
+# ----------------------------------------
+RUN git clone --depth 1 --branch feature/base-path-support \
+        https://github.com/prokube/opencode.git /tmp/opencode \
+    && cd /tmp/opencode \
+    && bun install --frozen-lockfile \
+    && cd packages/opencode \
+    && bun run build \
+    && bun link --global \
+    && cd / \
+    && rm -rf /tmp/opencode
 
 # ----------------------------------------
 # Verify installations
@@ -60,6 +77,7 @@ RUN npm install -g opencode-ai@latest
 RUN echo "Verifying installations..." && \
     openresty -v && \
     opencode --version && \
+    bun --version && \
     git --version && \
     node --version
 
