@@ -85,11 +85,10 @@ export function rewriteHtmlForBasePath(html: string, basePath: string): string {
  * Note: The Vite patch is fragile and depends on minified output format.
  * 
  * SKYNETCMS PATCHES:
- * 1. Fixed regex to match both `;` and `)` after window.location.origin
- *    The minified code pattern varies between builds:
- *      - `:window.location.origin)` - original expected pattern (parenthesis)
- *      - `:window.location.origin;` - actual pattern in some builds (semicolon)
- * 2. Added rewrite for hardcoded "/assets/..." string literals (fonts, audio, etc.)
+ * 1. (FIXED UPSTREAM) Regex now matches both `;` and `)` after window.location.origin
+ * 2. (STILL NEEDED) Rewrite for hardcoded "/assets/..." string literals (fonts, audio)
+ *    - Fonts: inter, BlexMonoNerdFontMono, CaskaydiaCoveNerdFontMono, etc.
+ *    - Audio: staplebops, nope, etc.
  * See: docker/patches/README.md
  */
 export function rewriteJsForBasePath(js: string, basePath: string): string {

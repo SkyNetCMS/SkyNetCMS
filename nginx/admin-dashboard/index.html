@@ -29,22 +29,16 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
         }
 
-        /* Custom toolbar inside the floating window */
-        .sn-toolbar {
+        /* Custom header styling - replaces default #si-header */
+        #si-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 8px 12px;
             background: #1a1a2e;
             border-bottom: 1px solid #2a2a4a;
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 10;
             height: 40px;
-            /* Allow drag events to pass through to #si-header underneath */
-            pointer-events: none;
+            cursor: move;
         }
 
         .sn-toolbar-title {
@@ -54,10 +48,6 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            /* Keep pointer-events none so drag passes through to #si-header */
-            pointer-events: none;
-            cursor: move;
-            /* Prevent text selection */
             user-select: none;
             -webkit-user-select: none;
         }
@@ -65,8 +55,6 @@
         .sn-toolbar-actions {
             display: flex;
             gap: 4px;
-            /* Re-enable pointer events for action buttons */
-            pointer-events: auto;
         }
 
         .sn-toolbar-btn {
@@ -109,7 +97,6 @@
             margin-left: 4px;
             border-radius: 4px;
             transition: all 0.2s;
-            pointer-events: auto;
             line-height: 1;
         }
 
@@ -118,13 +105,35 @@
             color: #ff8888;
             border-color: #6a3a3a;
         }
-
-        /* Offset the iframe content to account for toolbar */
-        #si-window iframe {
-            margin-top: 40px !important;
-            height: calc(100% - 40px) !important;
-        }
     </style>
+
+    <!-- Custom window template for service-injector -->
+    <script type="text/template" id="si-window-template">
+        <div id='si-inner'>
+            <div id='si-header'>
+                <div class="sn-toolbar-title">SkyNetCMS AI</div>
+                <div class="sn-toolbar-actions">
+                    <button class="sn-toolbar-btn" onclick="refreshMainPreview()" title="Refresh website preview">
+                        <span>&#8635;</span> Refresh
+                    </button>
+                    <button class="sn-toolbar-btn" onclick="selectElement()" title="Select element (coming soon)" disabled>
+                        <span>&#9678;</span> Select
+                    </button>
+                    <button class="sn-toolbar-close" onclick="siToggleWindow()" title="Close window">X</button>
+                </div>
+            </div>
+            <div id='si-body'><iframe id='si-iframe'></iframe></div>
+        </div>
+        <!-- Resize handles (required for resizable window) -->
+        <div id='si-resize-n' class='si-resize-edge' data-resize='n'></div>
+        <div id='si-resize-s' class='si-resize-edge' data-resize='s'></div>
+        <div id='si-resize-e' class='si-resize-edge' data-resize='e'></div>
+        <div id='si-resize-w' class='si-resize-edge' data-resize='w'></div>
+        <div id='si-resize-ne' class='si-resize-corner' data-resize='ne'></div>
+        <div id='si-resize-nw' class='si-resize-corner' data-resize='nw'></div>
+        <div id='si-resize-se' class='si-resize-corner' data-resize='se'></div>
+        <div id='si-resize-sw' class='si-resize-corner' data-resize='sw'></div>
+    </script>
 </head>
 <body>
     <!-- 
@@ -151,60 +160,18 @@
         data-draggable="true"
         data-resizable="true"
         data-dockable="true"
-        data-hide-tab="false"
+        data-hide-tab="true"
     ></script>
 
     <script>
-        // Wait for service-injector to initialize
+        // Wait for service-injector to initialize, then open window by default
         document.addEventListener('DOMContentLoaded', function() {
-            // Give service-injector time to create elements
-            setTimeout(initializeAdminDashboard, 100);
+            setTimeout(function() {
+                if (typeof siOpenWindow === 'function') {
+                    siOpenWindow();
+                }
+            }, 100);
         });
-
-        function initializeAdminDashboard() {
-            // Open window by default
-            if (typeof siOpenWindow === 'function') {
-                siOpenWindow();
-            }
-
-            // Add custom toolbar to the floating window
-            addToolbarToWindow();
-        }
-
-        function addToolbarToWindow() {
-            const siWindow = document.getElementById('si-window');
-            if (!siWindow) {
-                // Retry if window not ready yet
-                setTimeout(addToolbarToWindow, 100);
-                return;
-            }
-
-            // Check if toolbar already exists
-            if (siWindow.querySelector('.sn-toolbar')) {
-                return;
-            }
-
-            // Create toolbar element
-            const toolbar = document.createElement('div');
-            toolbar.className = 'sn-toolbar';
-            toolbar.innerHTML = `
-                <div class="sn-toolbar-title">
-                    <span>SkyNetCMS AI</span>
-                </div>
-                <div class="sn-toolbar-actions">
-                    <button class="sn-toolbar-btn" onclick="refreshMainPreview()" title="Refresh website preview">
-                        <span>&#8635;</span> Refresh
-                    </button>
-                    <button class="sn-toolbar-btn" onclick="selectElement()" title="Select element (coming soon)" disabled>
-                        <span>&#9678;</span> Select
-                    </button>
-                    <button class="sn-toolbar-close" onclick="siToggleWindow()" title="Close window">X</button>
-                </div>
-            `;
-
-            // Insert toolbar at the beginning of the window
-            siWindow.insertBefore(toolbar, siWindow.firstChild);
-        }
 
         // Refresh the main website preview iframe
         function refreshMainPreview() {

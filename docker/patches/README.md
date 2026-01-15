@@ -73,33 +73,13 @@ When the upstream PR is fixed/merged:
 
 **Issue:** OpenCode PR #7625 adds `--base-path` support for running behind a reverse proxy, but has bugs in the JavaScript rewrite function.
 
-#### Problem #1: API URL regex mismatch
+#### Problem #1: API URL regex mismatch (FIXED UPSTREAM)
 
-The `rewriteJsForBasePath()` function uses this regex:
+**Status:** Fixed in PR #7625 as of commit `e393b1f` (Jan 14, 2026)
 
-```javascript
-/:window\.location\.origin\)/g
-```
+The `rewriteJsForBasePath()` function originally used a regex that expected `:window.location.origin)` but the minified JS had `:window.location.origin;`. This has been fixed upstream to match both patterns.
 
-This expects the minified JS to have `:window.location.origin)` (ending with parenthesis), but the actual minified output has `:window.location.origin;` (ending with semicolon).
-
-**Result:** API calls go to `/global/health` instead of `/sn_admin/oc/global/health`, causing:
-
-```
-Error: Could not connect to server. Is there a server running at `http://localhost:8080`?
-```
-
-**Fix:** Updated regex to match both patterns:
-
-```javascript
-// Original (broken):
-/:window\.location\.origin\)/g
-
-// Patched (fixed):
-/:window\.location\.origin([);])/g
-```
-
-#### Problem #2: Hardcoded asset paths not rewritten
+#### Problem #2: Hardcoded asset paths not rewritten (STILL BROKEN)
 
 The JavaScript contains hardcoded string literals for static assets:
 
@@ -122,16 +102,16 @@ result = result.replace(/"\/assets\//g, `"${basePath}/assets/`)
 
 ### Summary of All Patches
 
-| Patch | Problem | Fix |
-|-------|---------|-----|
-| #1 | Regex expects `)` but code has `;` | Match both `[);]` |
-| #2 | Hardcoded `/assets/` paths | Rewrite `"/assets/` to `"${basePath}/assets/` |
+| Patch | Problem | Status | Fix |
+|-------|---------|--------|-----|
+| #1 | Regex expects `)` but code has `;` | Fixed upstream | Match both `[);]` |
+| #2 | Hardcoded `/assets/` paths | **Still needed** | Rewrite `"/assets/` to `"${basePath}/assets/` |
 
 **References:**
 - PR: https://github.com/anomalyco/opencode/pull/7625
 - Fork: https://github.com/prokube/opencode/tree/feature/base-path-support
 
-**When to remove:** Once PR #7625 is merged with these fixes, or when SkyNetCMS switches to an official OpenCode release with proper base-path support, this patch can be removed and the build can switch to:
+**When to remove:** Once PR #7625 is merged AND includes the `/assets/` path rewrite fix (Problem #2), or when SkyNetCMS switches to an official OpenCode release with proper base-path support, this patch can be removed and the build can switch to:
 
 ```dockerfile
 RUN npm install -g opencode-ai@latest
