@@ -2,13 +2,20 @@
 # ============================================
 # SkyNetCMS - Site Build Script
 # ============================================
-# Placeholder for M4: Site build pipeline
-# ============================================
 
-echo "[INFO] Build: Not implemented yet (M4)"
+set -e
 
-# For now, just copy src to dist
-if [ -d "/data/repo/src" ]; then
-    cp -r /data/repo/src/* /data/repo/dist/ 2>/dev/null || true
-    echo "[OK] Copied src/ to dist/"
+echo "[INFO] Running site build..."
+
+cd /data/repo
+
+if [ -f "package.json" ]; then
+    npm run build
+    echo "[OK] Build completed"
+else
+    # Fallback for repos without package.json
+    if [ -d "src" ]; then
+        cp -r src/* dist/ 2>/dev/null || true
+        echo "[OK] Copied src/ to dist/ (no package.json)"
+    fi
 fi

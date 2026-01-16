@@ -40,7 +40,7 @@ fi
 # ----------------------------------------
 # 2. Initialize data directories
 # ----------------------------------------
-mkdir -p /data/repo/src /data/repo/dist /run
+# mkdir -p /data/repo/src /data/repo/dist /run
 
 # ----------------------------------------
 # 3. First-run: Copy template if repo is empty
@@ -48,15 +48,21 @@ mkdir -p /data/repo/src /data/repo/dist /run
 if [ ! -f "/data/repo/src/index.html" ]; then
     echo "[INFO] First run detected - initializing from template..."
     cp -r /opt/templates/default/* /data/repo/
+fi
+    
+if [ ! -f "/data/repo/dist/index.html" ]; then
+    # Build site
+    echo "[INFO] Running initial build..."
+    cd /data/repo
+    npm run build
+    # opencode run "Register this project at opencode and quickly exit"
     
     # Initialize Git repository
-    cd /data/repo
     git init
     git config user.email "skynetcms@local"
     git config user.name "SkyNetCMS"
     git add -A
     git commit -m "Initial commit from SkyNetCMS template"
-    cd /
     
     echo "[OK] Repository initialized"
 fi
@@ -66,19 +72,20 @@ fi
 # ----------------------------------------
 # Ensure /data is writable by nginx worker (nobody:nogroup)
 # This is needed for Lua scripts to create htpasswd file during registration
-chown -R nobody:nogroup /data
-chmod -R 755 /data
+# chown -R nobody:nogroup /data
+# chmod -R 755 /data
 
 # ----------------------------------------
 # 4. Start OpenCode web server
 # ----------------------------------------
 echo "[INFO] Starting OpenCode web server..."
 cd /data/repo
-
+pwd
 # Start OpenCode web server in background
 # Port 3000, localhost only (nginx will proxy to it)
 # --base-path allows OpenCode to work behind reverse proxy at /sn_admin/oc/
-opencode web --port 3000 --hostname 127.0.0.1 --base-path /sn_admin/oc > /var/log/opencode.log 2>&1 &
+# opencode web --port 3000 --hostname 127.0.0.1 --base-path /sn_admin/oc > /var/log/opencode.log 2>&1 &
+opencode web --port 3000 --hostname 127.0.0.1 --base-path /sn_admin/oc &
 OPENCODE_PID=$!
 echo "[INFO] OpenCode started with PID: $OPENCODE_PID"
 
@@ -117,9 +124,14 @@ else
 fi
 
 # ----------------------------------------
-# 6. Run initial build (copy src to dist)
+# 6. Run build if dist/ is missing
 # ----------------------------------------
-/scripts/build-site.sh
+# if [ ! -d "/data/repo/dist" ] || [ -z "$(ls -A /data/repo/dist 2>/dev/null)" ]; then
+#     echo "[INFO] dist/ missing or empty, running build..."
+#     /scripts/build-site.sh
+# else
+#     echo "[OK] dist/ exists, skipping build"
+# fi
 
 # ----------------------------------------
 # 7. Start OpenResty (nginx)

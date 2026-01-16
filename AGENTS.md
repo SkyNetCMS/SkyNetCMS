@@ -56,3 +56,11 @@ Build currently manual: `docker exec <container> /scripts/build-site.sh`
 - Detailed docs: `README.md`, `PRD_v1.md`, `PLAN_v1.md`
 - Environment variables: See `README.md`
 - Testing/troubleshooting: See `README.md`
+
+
+## Testing Rules
+
+* Do not use "docker compose": use direct "docker"
+* Start container with "--rm" so it will die at the exit and next test will be on fresh container
+* If user testing is needed: in the ask specify login/password which was used for a container
+* Always call container for testing "skynetcms-test"

@@ -134,6 +134,11 @@ RUN chmod +x /scripts/*.sh
 COPY templates/default/ /opt/templates/default/
 
 # ----------------------------------------
+# Pre-install template dependencies
+# ----------------------------------------
+RUN cd /opt/templates/default && npm install
+
+# ----------------------------------------
 # Copy admin dashboard SPA
 # ----------------------------------------
 COPY nginx/admin-dashboard/ /opt/admin-dashboard/
@@ -164,6 +169,11 @@ VOLUME ["/data"]
 # ----------------------------------------
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s \
     CMD curl -f http://localhost/health || exit 1
+
+# ----------------------------------------
+# Working directory
+# ----------------------------------------
+WORKDIR /data/repo
 
 # ----------------------------------------
 # Entrypoint
