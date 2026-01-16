@@ -48,6 +48,7 @@ fi
 if [ ! -f "/data/repo/src/index.html" ]; then
     echo "[INFO] First run detected - initializing from template..."
     cp -r /opt/templates/default/* /data/repo/
+    cp -r /opt/templates/default/.[!.]* /data/repo/
 fi
     
 if [ ! -f "/data/repo/dist/index.html" ]; then
@@ -59,8 +60,9 @@ if [ ! -f "/data/repo/dist/index.html" ]; then
     
     # Initialize Git repository
     git init
-    git config user.email "skynetcms@local"
-    git config user.name "SkyNetCMS"
+    git config --global user.email "support@skynetcms.com"
+    git config --global user.name "SkyNetCMS"
+    git config --global --add safe.directory /data/repo
     git add -A
     git commit -m "Initial commit from SkyNetCMS template"
     
@@ -87,7 +89,8 @@ pwd
 # Port 3000, localhost only (nginx will proxy to it)
 # --base-path allows OpenCode to work behind reverse proxy at /sn_admin/oc/
 # opencode web --port 3000 --hostname 127.0.0.1 --base-path /sn_admin/oc > /var/log/opencode.log 2>&1 &
-OPENCODE_TEST_HOME=/data/ opencode web --port 3000 --hostname 127.0.0.1 --base-path /sn_admin/oc &
+OPENCODE_TEST_HOME=/data/repo opencode web --port 3000 --hostname 127.0.0.1 --base-path /sn_admin/oc &
+# opencode web --port 3000 --hostname 127.0.0.1 --base-path /sn_admin/oc &
 OPENCODE_PID=$!
 echo "[INFO] OpenCode started with PID: $OPENCODE_PID"
 
