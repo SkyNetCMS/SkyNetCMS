@@ -104,7 +104,6 @@ RUN echo "Verifying installations..." && \
 ENV ADMIN_USER=""
 ENV ADMIN_PASS=""
 ENV SITE_TITLE="SkyNetCMS"
-ENV BUILD_CMD="/scripts/build-site.sh"
 
 # ----------------------------------------
 # Create directory structure

@@ -14,7 +14,7 @@ OpenCode server runs on port 3000, working directory `/data/repo/` (Git repo).
 ## Key Directories
 
 ```
-docker/           # Dockerfile, scripts (init.sh, build-site.sh)
+docker/           # Dockerfile, scripts (init.sh)
 nginx/            # nginx.conf, conf.d/, lua/ (auth logic)
 opencode/config/  # → ~/.config/opencode/ in container
 templates/default/ # Initial site template → /data/repo/
@@ -23,7 +23,7 @@ templates/default/ # Initial site template → /data/repo/
 ## Code Conventions
 
 - **Shell**: `#!/bin/bash`, use `set -e`
-- **Files**: lowercase-kebab-case (`build-site.sh`)
+- **Files**: lowercase-kebab-case (`init.sh`)
 - **Docs**: PascalCase (`README.md`)
 - **Commits**: Present tense ("Add nginx configuration")
 
@@ -49,7 +49,7 @@ Locations must be ordered most-specific first:
 ## Build Pipeline
 
 AI edits `/data/repo/src/` → build script copies to `/data/repo/dist/` → Nginx serves dist.
-Build currently manual: `docker exec <container> /scripts/build-site.sh`
+Build: `docker exec <container> npm run build` (runs in `/data/repo`)
 
 ## References
 
