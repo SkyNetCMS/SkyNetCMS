@@ -74,6 +74,8 @@ fi
 # This is needed for Lua scripts to create htpasswd file during registration
 # chown -R nobody:nogroup /data
 # chmod -R 755 /data
+touch /data/.htpasswd
+chown nobody:nogroup /data/.htpasswd
 
 # ----------------------------------------
 # 4. Start OpenCode web server
@@ -85,7 +87,7 @@ pwd
 # Port 3000, localhost only (nginx will proxy to it)
 # --base-path allows OpenCode to work behind reverse proxy at /sn_admin/oc/
 # opencode web --port 3000 --hostname 127.0.0.1 --base-path /sn_admin/oc > /var/log/opencode.log 2>&1 &
-opencode web --port 3000 --hostname 127.0.0.1 --base-path /sn_admin/oc &
+OPENCODE_TEST_HOME=/data/ opencode web --port 3000 --hostname 127.0.0.1 --base-path /sn_admin/oc &
 OPENCODE_PID=$!
 echo "[INFO] OpenCode started with PID: $OPENCODE_PID"
 
