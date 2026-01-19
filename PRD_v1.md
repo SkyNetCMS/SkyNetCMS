@@ -85,7 +85,7 @@ SkyNetCMS transforms website creation from traditional form-based interfaces to 
 
 **Public Access (`/`)**:
 ```
-User → Nginx → Static files from /data/repo/dist/
+User → Nginx → Static files from /data/website/dist/
 ```
 
 **Admin Access (`/sn_admin/`)**:
@@ -98,7 +98,7 @@ User → Nginx → htpasswd auth → OpenCode Web UI (iframe)
                                       ↓
                                Build process runs
                                       ↓
-                               Updated /data/repo/dist/
+                               Updated /data/website/dist/
 ```
 
 ---

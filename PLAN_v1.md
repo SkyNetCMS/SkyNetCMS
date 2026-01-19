@@ -93,7 +93,7 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 - [x] Verify nginx starts correctly in container (ready to test)
 
 ### Feature 2.2: Static File Serving
-- [x] Configure `/` location to serve from `/data/repo/dist/`
+- [x] Configure `/` location to serve from `/data/website/dist/`
   - [x] index.html as default
   - [x] Proper MIME types (via OpenResty defaults)
   - [-] Caching headers (deferred - not critical for MVP)
@@ -203,7 +203,7 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 
 ### Feature 3.1: OpenCode Service Setup
 - [x] Update `docker/scripts/init.sh` to start `opencode web` in background
-- [x] Configure to run in `/data/repo/` directory
+- [x] Configure to run in `/data/website/` directory
 - [x] Health check loop (max 30s, proceeds when ready)
 - [x] Port 3000, localhost only (nginx proxies to it)
 
@@ -301,9 +301,9 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 
 ### Feature 4.2: First-Run Initialization
 - [ ] Update `docker/scripts/init.sh` to:
-  - [ ] Check if `/data/repo/` exists
+  - [ ] Check if `/data/website/` exists
   - [ ] If not, initialize Git repo
-  - [ ] Copy entire `templates/default/` contents to `/data/repo/`
+  - [ ] Copy entire `templates/default/` contents to `/data/website/`
   - [ ] Copy `opencode/config/` to `~/.config/opencode/`
   - [ ] Run initial build
   - [ ] Create initial Git commit

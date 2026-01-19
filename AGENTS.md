@@ -5,11 +5,11 @@
 ## Architecture Overview
 
 Single Docker container with OpenResty (Nginx + Lua) routing to:
-- `/` → Static site from `/data/repo/dist/`
+- `/` → Static site from `/data/website/dist/`
 - `/sn_admin/` → Admin Dashboard (htpasswd auth)
 - `/sn_admin/oc/` → OpenCode Web UI (htpasswd auth)
 
-OpenCode server runs on port 3000, working directory `/data/repo/` (Git repo).
+OpenCode server runs on port 3000, working directory `/data/website/` (Git repo).
 
 ## Key Directories
 
@@ -17,13 +17,13 @@ OpenCode server runs on port 3000, working directory `/data/repo/` (Git repo).
 docker/           # Dockerfile, scripts (init.sh)
 nginx/            # nginx.conf, conf.d/, lua/ (auth logic)
 opencode/config/  # → ~/.config/opencode/ in container
-templates/default/ # Initial site template → /data/repo/
+templates/default/ # Initial site template → /data/website/
 ```
 
 ## Docker Runtime Notes
 
 - **Nginx worker user**: `www-data` (not `nobody` - Docker Desktop macOS has I/O issues with UID 65534)
-- **Auth files**: `/data/auth/` (www-data owned) - separate from `/data/repo/` (root owned)
+- **Auth files**: `/data/auth/` (www-data owned) - separate from `/data/website/` (root owned)
 - **OpenCode source**: Built from `SkyNetCMS/opencode` fork (branch: `skynetcms`) with embedded web app (no runtime dependency on `app.opencode.ai`)
 
 ## Code Conventions
@@ -55,8 +55,8 @@ Locations must be ordered most-specific first:
 
 ## Build Pipeline
 
-AI edits `/data/repo/src/` → build script copies to `/data/repo/dist/` → Nginx serves dist.
-Build: `docker exec <container> npm run build` (runs in `/data/repo`)
+AI edits `/data/website/src/` → build script copies to `/data/website/dist/` → Nginx serves dist.
+Build: `docker exec <container> npm run build` (runs in `/data/website`)
 
 ## References
 

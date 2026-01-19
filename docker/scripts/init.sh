@@ -40,21 +40,21 @@ fi
 # ----------------------------------------
 # 2. Initialize data directories
 # ----------------------------------------
-# mkdir -p /data/repo/src /data/repo/dist /run
+# mkdir -p /data/website/src /data/website/dist /run
 
 # ----------------------------------------
 # 3. First-run: Copy template if repo is empty
 # ----------------------------------------
-if [ ! -f "/data/repo/src/index.html" ]; then
+if [ ! -f "/data/website/src/index.html" ]; then
     echo "[INFO] First run detected - initializing from template..."
-    cp -r /opt/templates/default/* /data/repo/
-    cp -r /opt/templates/default/.[!.]* /data/repo/
+    cp -r /opt/templates/default/* /data/website/
+    cp -r /opt/templates/default/.[!.]* /data/website/
 fi
     
-if [ ! -f "/data/repo/dist/index.html" ]; then
+if [ ! -f "/data/website/dist/index.html" ]; then
     # Build site
     echo "[INFO] Running initial build..."
-    cd /data/repo
+    cd /data/website
     npm run build
     # opencode run "Register this project at opencode and quickly exit"
     
@@ -62,7 +62,7 @@ if [ ! -f "/data/repo/dist/index.html" ]; then
     git init
     git config --global user.email "support@skynetcms.com"
     git config --global user.name "SkyNetCMS"
-    git config --global --add safe.directory /data/repo
+    git config --global --add safe.directory /data/website
     git add -A
     git commit -m "Initial commit from SkyNetCMS template"
     
@@ -91,13 +91,13 @@ mkdir -p /data/opencode/data /data/opencode/state /tmp/opencode-cache
 # 4. Start OpenCode web server
 # ----------------------------------------
 echo "[INFO] Starting OpenCode web server..."
-cd /data/repo
+cd /data/website
 pwd
 # Start OpenCode web server in background
 # Port 3000, localhost only (nginx will proxy to it)
 # --base-path allows OpenCode to work behind reverse proxy at /sn_admin/oc/
 # opencode web --port 3000 --hostname 127.0.0.1 --base-path /sn_admin/oc > /var/log/opencode.log 2>&1 &
-OPENCODE_TEST_HOME=/data/repo opencode web --port 3000 --hostname 127.0.0.1 --base-path /sn_admin/oc &
+OPENCODE_TEST_HOME=/data/website opencode web --port 3000 --hostname 127.0.0.1 --base-path /sn_admin/oc &
 # opencode web --port 3000 --hostname 127.0.0.1 --base-path /sn_admin/oc &
 OPENCODE_PID=$!
 echo "[INFO] OpenCode started with PID: $OPENCODE_PID"
@@ -139,7 +139,7 @@ fi
 # ----------------------------------------
 # 6. Run build if dist/ is missing
 # ----------------------------------------
-# if [ ! -d "/data/repo/dist" ] || [ -z "$(ls -A /data/repo/dist 2>/dev/null)" ]; then
+# if [ ! -d "/data/website/dist" ] || [ -z "$(ls -A /data/website/dist 2>/dev/null)" ]; then
 #     echo "[INFO] dist/ missing or empty, running build..."
 #     /scripts/build-site.sh
 # else

@@ -113,8 +113,8 @@ docker exec skynet-test openresty -v
 docker exec skynet-test opencode --version
 
 # Check repository was initialized
-docker exec skynet-test ls /data/repo/src
-docker exec skynet-test git -C /data/repo log --oneline
+docker exec skynet-test ls /data/website/src
+docker exec skynet-test git -C /data/website log --oneline
 
 # Cleanup
 docker rm -f skynet-test

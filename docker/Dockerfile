@@ -107,7 +107,7 @@ ENV XDG_CACHE_HOME=/tmp/opencode-cache
 # ----------------------------------------
 # Create directory structure
 # ----------------------------------------
-RUN mkdir -p /data/repo/src /data/repo/dist /scripts /etc/nginx/conf.d /etc/nginx/lua /run
+RUN mkdir -p /data/website/src /data/website/dist /scripts /etc/nginx/conf.d /etc/nginx/lua /run
 
 # ----------------------------------------
 # Copy nginx configuration
@@ -171,7 +171,7 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s \
 # ----------------------------------------
 # Working directory
 # ----------------------------------------
-WORKDIR /data/repo
+WORKDIR /data/website
 
 # ----------------------------------------
 # Entrypoint
