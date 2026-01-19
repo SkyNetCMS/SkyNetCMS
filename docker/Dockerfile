@@ -98,6 +98,12 @@ ENV ADMIN_USER=""
 ENV ADMIN_PASS=""
 ENV SITE_TITLE="SkyNetCMS"
 
+# XDG directories for OpenCode
+# Config stays in image (/root/.config/opencode) - read-only for security
+ENV XDG_DATA_HOME=/data/opencode/data
+ENV XDG_STATE_HOME=/data/opencode/state
+ENV XDG_CACHE_HOME=/tmp/opencode-cache
+
 # ----------------------------------------
 # Create directory structure
 # ----------------------------------------

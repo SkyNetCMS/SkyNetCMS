@@ -46,6 +46,7 @@ Locations must be ordered most-specific first:
 - **NEVER** expose OpenCode UI without authentication
 - **NEVER** allow AI to modify nginx config at runtime
 - **NEVER** store secrets in Git repository
+- **OpenCode config**: Kept read-only in image (`/root/.config/opencode/`), not in `/data/` volume, to prevent AI/users from modifying behavior at runtime
 
 ## Scope Boundaries
 

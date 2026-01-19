@@ -81,6 +81,13 @@ chown www-data:www-data /data/auth
 chmod 755 /data/auth
 
 # ----------------------------------------
+# 3.6. Create OpenCode XDG directories
+# ----------------------------------------
+# Data and state persist in /data volume, cache is ephemeral in /tmp
+# Config stays read-only in image (/root/.config/opencode) for security
+mkdir -p /data/opencode/data /data/opencode/state /tmp/opencode-cache
+
+# ----------------------------------------
 # 4. Start OpenCode web server
 # ----------------------------------------
 echo "[INFO] Starting OpenCode web server..."
