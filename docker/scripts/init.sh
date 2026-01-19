@@ -72,12 +72,13 @@ fi
 # ----------------------------------------
 # 3.5. Set permissions for nginx worker
 # ----------------------------------------
-# Ensure /data is writable by nginx worker (nobody:nogroup)
-# This is needed for Lua scripts to create htpasswd file during registration
-# chown -R nobody:nogroup /data
-# chmod -R 755 /data
-touch /data/.htpasswd
-chown nobody:nogroup /data/.htpasswd
+# Create /data/auth/ directory for htpasswd file
+# This directory is owned by www-data so nginx worker can write to it
+# (htpasswd command needs write access to the directory, not just the file)
+# Note: We use www-data instead of nobody due to Docker Desktop restrictions
+mkdir -p /data/auth
+chown www-data:www-data /data/auth
+chmod 755 /data/auth
 
 # ----------------------------------------
 # 4. Start OpenCode web server
@@ -120,7 +121,7 @@ if [ "$AUTH_MODE" = "preconfigured" ]; then
     /scripts/setup-auth.sh
 else
     # Check if htpasswd already exists (from previous registration)
-    if [ -f "/data/.htpasswd" ]; then
+    if [ -f "/data/auth/.htpasswd" ]; then
         echo "[OK] Existing admin credentials found"
     else
         echo "[INFO] No admin credentials configured"
@@ -153,7 +154,7 @@ echo "  "
 if [ "$AUTH_MODE" = "preconfigured" ]; then
     echo "  Admin user: $ADMIN_USER"
 else
-    if [ -f "/data/.htpasswd" ]; then
+    if [ -f "/data/auth/.htpasswd" ]; then
         echo "  Admin: Configured (via registration)"
     else
         echo "  Admin: NOT CONFIGURED - visit /sn_admin/ to setup"

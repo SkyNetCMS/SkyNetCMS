@@ -20,6 +20,12 @@ opencode/config/  # → ~/.config/opencode/ in container
 templates/default/ # Initial site template → /data/repo/
 ```
 
+## Docker Runtime Notes
+
+- **Nginx worker user**: `www-data` (not `nobody` - Docker Desktop macOS has I/O issues with UID 65534)
+- **Auth files**: `/data/auth/` (www-data owned) - separate from `/data/repo/` (root owned)
+- **OpenCode source**: Built from `SkyNetCMS/opencode` fork (branch: `skynetcms`) with embedded web app (no runtime dependency on `app.opencode.ai`)
+
 ## Code Conventions
 
 - **Shell**: `#!/bin/bash`, use `set -e`

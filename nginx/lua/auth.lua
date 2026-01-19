@@ -5,7 +5,7 @@
 local _M = {}
 
 -- Path to htpasswd file
-_M.HTPASSWD_PATH = "/data/.htpasswd"
+_M.HTPASSWD_PATH = "/data/auth/.htpasswd"
 
 -- Check if admin credentials are configured
 -- Returns true if htpasswd file exists and is non-empty

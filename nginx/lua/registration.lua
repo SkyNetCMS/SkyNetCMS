@@ -8,7 +8,7 @@ local auth = require("auth")
 local cjson = require("cjson.safe")
 
 -- Configuration
-local HTPASSWD_PATH = "/data/.htpasswd"
+local HTPASSWD_PATH = "/data/auth/.htpasswd"
 local RATE_LIMIT_MAX = 5      -- max attempts
 local RATE_LIMIT_WINDOW = 60  -- per 60 seconds
 

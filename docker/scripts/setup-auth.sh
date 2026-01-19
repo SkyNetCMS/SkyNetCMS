@@ -16,6 +16,6 @@ fi
 # -c = create file
 # -b = batch mode (password from command line)
 # -B = bcrypt hashing (secure)
-htpasswd -cbB /data/.htpasswd "$ADMIN_USER" "$ADMIN_PASS"
+htpasswd -cbB /data/auth/.htpasswd "$ADMIN_USER" "$ADMIN_PASS"
 
 echo "[OK] Authentication configured for user: $ADMIN_USER"
