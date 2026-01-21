@@ -1,0 +1,269 @@
+/* ===== SkyNetCMS Admin UI - Global Styles ===== */
+
+/* ===== Design Tokens ===== */
+:root {
+    /* Background Colors */
+    --sn-bg-primary:     #0f0f1a;
+    --sn-bg-secondary:   #1a1a2e;
+    --sn-bg-tertiary:    #16213e;
+    --sn-bg-elevated:    #1e2a4a;
+    
+    /* Accent Colors */
+    --sn-accent:         #00d4ff;
+    --sn-accent-hover:   #33ddff;
+    --sn-accent-active:  #00a8cc;
+    --sn-accent-muted:   #0099b8;
+    --sn-accent-subtle:  rgba(0, 212, 255, 0.1);
+    
+    /* Text Colors */
+    --sn-text-primary:   #ffffff;
+    --sn-text-secondary: #a0aec0;
+    --sn-text-muted:     #718096;
+    --sn-text-inverse:   #1a1a2e;
+    
+    /* Border Colors */
+    --sn-border:         #2a2a4a;
+    --sn-border-hover:   #3a3a5a;
+    --sn-border-focus:   #00d4ff;
+    
+    /* Status Colors */
+    --sn-success:        #48bb78;
+    --sn-success-bg:     rgba(72, 187, 120, 0.1);
+    --sn-error:          #f56565;
+    --sn-error-bg:       rgba(245, 101, 101, 0.1);
+    
+    /* Shadows */
+    --sn-shadow-sm:      0 4px 8px rgba(0, 0, 0, 0.3);
+    --sn-shadow-lg:      0 8px 16px rgba(0, 0, 0, 0.4);
+    --sn-shadow-xl:      0 20px 60px rgba(0, 0, 0, 0.5);
+    --sn-shadow-glow:    0 0 20px rgba(0, 212, 255, 0.3);
+    
+    /* Spacing */
+    --sn-space-1:   4px;
+    --sn-space-2:   8px;
+    --sn-space-3:  12px;
+    --sn-space-4:  16px;
+    --sn-space-5:  20px;
+    --sn-space-6:  24px;
+    --sn-space-8:  32px;
+    --sn-space-10: 40px;
+    
+    /* Border Radius */
+    --sn-radius-sm:  4px;
+    --sn-radius-md:  8px;
+    --sn-radius-lg:  12px;
+    --sn-radius-xl:  16px;
+    
+    /* Typography */
+    --sn-font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    --sn-text-xs:   12px;
+    --sn-text-sm:   14px;
+    --sn-text-base: 16px;
+    --sn-text-lg:   18px;
+    --sn-text-xl:   20px;
+    --sn-text-2xl:  24px;
+    --sn-text-3xl:  28px;
+    
+    /* Transitions */
+    --sn-transition-fast: 0.15s ease;
+    --sn-transition-base: 0.2s ease;
+}
+
+/* ===== Reset ===== */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ===== Base Styles ===== */
+html, body {
+    height: 100%;
+    font-family: var(--sn-font-sans);
+    background: var(--sn-bg-primary);
+    color: var(--sn-text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===== Common Components ===== */
+
+/* Card Container */
+.sn-card {
+    background: var(--sn-bg-secondary);
+    border: 1px solid var(--sn-border);
+    border-radius: var(--sn-radius-xl);
+    box-shadow: var(--sn-shadow-xl);
+    padding: var(--sn-space-10);
+}
+
+/* Logo */
+.sn-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--sn-space-4);
+}
+
+.sn-logo-icon {
+    width: 64px;
+    height: 64px;
+}
+
+.sn-logo-title {
+    font-size: var(--sn-text-3xl);
+    color: var(--sn-text-primary);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.sn-logo-title .accent {
+    color: var(--sn-accent);
+}
+
+/* Form Elements */
+.sn-form-group {
+    margin-bottom: var(--sn-space-5);
+}
+
+.sn-label {
+    display: block;
+    color: var(--sn-text-secondary);
+    font-weight: 500;
+    margin-bottom: var(--sn-space-2);
+    font-size: var(--sn-text-sm);
+}
+
+.sn-input {
+    width: 100%;
+    padding: var(--sn-space-3) var(--sn-space-4);
+    background: var(--sn-bg-primary);
+    color: var(--sn-text-primary);
+    border: 2px solid var(--sn-border);
+    border-radius: var(--sn-radius-md);
+    font-size: var(--sn-text-base);
+    font-family: var(--sn-font-sans);
+    transition: border-color var(--sn-transition-base), box-shadow var(--sn-transition-base);
+}
+
+.sn-input::placeholder {
+    color: var(--sn-text-muted);
+}
+
+.sn-input:focus {
+    outline: none;
+    border-color: var(--sn-border-focus);
+    box-shadow: 0 0 0 3px var(--sn-accent-subtle);
+}
+
+.sn-input.error {
+    border-color: var(--sn-error);
+}
+
+.sn-input.error:focus {
+    box-shadow: 0 0 0 3px var(--sn-error-bg);
+}
+
+/* Buttons */
+.sn-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sn-space-2);
+    padding: var(--sn-space-3) var(--sn-space-5);
+    border: none;
+    border-radius: var(--sn-radius-md);
+    font-size: var(--sn-text-base);
+    font-weight: 600;
+    font-family: var(--sn-font-sans);
+    cursor: pointer;
+    transition: transform var(--sn-transition-base), box-shadow var(--sn-transition-base);
+}
+
+.sn-btn:focus {
+    outline: none;
+}
+
+.sn-btn:disabled {
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.sn-btn-primary {
+    width: 100%;
+    background: linear-gradient(135deg, var(--sn-accent) 0%, var(--sn-accent-active) 100%);
+    color: var(--sn-text-inverse);
+}
+
+.sn-btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: var(--sn-shadow-glow);
+}
+
+.sn-btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.sn-btn-primary:focus {
+    box-shadow: var(--sn-shadow-glow), 0 0 0 3px var(--sn-accent-subtle);
+}
+
+.sn-btn-primary:disabled {
+    background: var(--sn-text-muted);
+}
+
+.sn-btn-secondary {
+    background: var(--sn-bg-tertiary);
+    border: 1px solid var(--sn-border-hover);
+    color: var(--sn-text-primary);
+}
+
+.sn-btn-secondary:hover:not(:disabled) {
+    background: var(--sn-bg-elevated);
+    border-color: var(--sn-accent);
+    color: var(--sn-accent);
+}
+
+/* Alert Messages */
+.sn-alert {
+    padding: var(--sn-space-3) var(--sn-space-4);
+    border-radius: var(--sn-radius-md);
+    margin-bottom: var(--sn-space-5);
+    font-size: var(--sn-text-sm);
+    display: none;
+}
+
+.sn-alert.visible {
+    display: block;
+}
+
+.sn-alert-error {
+    background: var(--sn-error-bg);
+    border: 1px solid var(--sn-error);
+    color: var(--sn-error);
+}
+
+.sn-alert-success {
+    background: var(--sn-success-bg);
+    border: 1px solid var(--sn-success);
+    color: var(--sn-success);
+}
+
+/* Helper Text */
+.sn-help-text {
+    font-size: var(--sn-text-xs);
+    color: var(--sn-text-muted);
+    margin-top: var(--sn-space-2);
+}
+
+/* Footer Text */
+.sn-footer {
+    text-align: center;
+    margin-top: var(--sn-space-6);
+    color: var(--sn-text-muted);
+    font-size: var(--sn-text-xs);
+    line-height: 1.5;
+}

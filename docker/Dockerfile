@@ -137,19 +137,14 @@ COPY templates/default/ /opt/templates/default/
 RUN cd /opt/templates/default && npm install
 
 # ----------------------------------------
-# Copy admin dashboard SPA
+# Build admin UI (dashboard + registration pages)
 # ----------------------------------------
-COPY nginx/admin-dashboard/ /opt/admin-dashboard/
-
-# ----------------------------------------
-# Copy admin registration page
-# ----------------------------------------
-COPY nginx/admin-registration/ /opt/admin-registration/
-
-# ----------------------------------------
-# Copy admin assets (logo, favicon)
-# ----------------------------------------
-COPY nginx/assets/ /opt/admin-assets/
+COPY admin-ui/ /tmp/admin-ui/
+RUN cd /tmp/admin-ui \
+    && npm install \
+    && npm run build \
+    && cp -r /tmp/admin-ui/dist /opt/admin-ui \
+    && rm -rf /tmp/admin-ui
 
 # ----------------------------------------
 # Copy OpenCode system config

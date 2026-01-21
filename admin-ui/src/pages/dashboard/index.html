@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyNetCMS Admin</title>
+    <link rel="icon" type="image/svg+xml" href="/sn_admin/assets/favicon.svg">
+    <link rel="stylesheet" href="./dashboard.css">
+</head>
+<body>
+    <!-- 
+        SkyNetCMS Admin Dashboard
+        
+        Uses service-injector in wrapper mode:
+        - Main iframe: Shows the live website preview (/)
+        - Floating window: Shows OpenCode AI interface (/sn_admin/oc/)
+    -->
+
+    <!-- Custom Tab Template -->
+    <script type="text/template" id="si-tab-template">
+        <a onclick='return siToggleWindow();' href='#' title="Open AI Assistant">
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.6">
+                    <line x1="32" y1="32" x2="48" y2="20"/>
+                    <line x1="32" y1="32" x2="48" y2="44"/>
+                    <line x1="32" y1="32" x2="16" y2="32"/>
+                    <line x1="48" y1="20" x2="48" y2="44"/>
+                </g>
+                <polygon points="32,22 40,27 40,37 32,42 24,37 24,27" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="2"/>
+                <polygon points="48,12 54,16 54,24 48,28 42,24 42,16" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.5"/>
+                <polygon points="48,36 54,40 54,48 48,52 42,48 42,40" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.5"/>
+                <polygon points="16,24 22,28 22,36 16,40 10,36 10,28" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.5"/>
+                <g fill="currentColor">
+                    <circle cx="32" cy="32" r="3"/>
+                    <circle cx="48" cy="20" r="2.5"/>
+                    <circle cx="48" cy="44" r="2.5"/>
+                    <circle cx="16" cy="32" r="2.5"/>
+                </g>
+            </svg>
+            <span>AI</span>
+        </a>
+    </script>
+
+    <!-- Custom Window Template -->
+    <script type="text/template" id="si-window-template">
+        <div id='si-inner'>
+            <div id='si-header'>
+                <div class="sn-toolbar-title">
+                    <svg class="sn-toolbar-logo" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round" opacity="0.6">
+                            <line x1="32" y1="32" x2="48" y2="20"/>
+                            <line x1="32" y1="32" x2="48" y2="44"/>
+                            <line x1="32" y1="32" x2="16" y2="32"/>
+                            <line x1="48" y1="20" x2="48" y2="44"/>
+                        </g>
+                        <polygon points="32,22 40,27 40,37 32,42 24,37 24,27" fill="#00d4ff" fill-opacity="0.15" stroke="#00d4ff" stroke-width="2"/>
+                        <polygon points="48,12 54,16 54,24 48,28 42,24 42,16" fill="#00d4ff" fill-opacity="0.1" stroke="#00d4ff" stroke-width="1.5"/>
+                        <polygon points="48,36 54,40 54,48 48,52 42,48 42,40" fill="#00d4ff" fill-opacity="0.1" stroke="#00d4ff" stroke-width="1.5"/>
+                        <polygon points="16,24 22,28 22,36 16,40 10,36 10,28" fill="#00d4ff" fill-opacity="0.1" stroke="#00d4ff" stroke-width="1.5"/>
+                        <g fill="#00d4ff">
+                            <circle cx="32" cy="32" r="3"/>
+                            <circle cx="48" cy="20" r="2.5"/>
+                            <circle cx="48" cy="44" r="2.5"/>
+                            <circle cx="16" cy="32" r="2.5"/>
+                        </g>
+                        <circle cx="32" cy="32" r="6" fill="#00d4ff" fill-opacity="0.2"/>
+                    </svg>
+                    <span>SkyNet<span class="accent">CMS</span></span>
+                </div>
+                <div class="sn-toolbar-actions">
+                    <button class="sn-toolbar-btn" onclick="refreshMainPreview()" title="Refresh website preview">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 2v6h-6"></path>
+                            <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+                            <path d="M3 22v-6h6"></path>
+                            <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+                        </svg>
+                        Refresh
+                    </button>
+                    <button class="sn-toolbar-btn" onclick="selectElement()" title="Select element (coming soon)" disabled>
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"></path>
+                            <path d="M13 13l6 6"></path>
+                        </svg>
+                        Select
+                    </button>
+                    <button class="sn-toolbar-close" onclick="siToggleWindow()" title="Minimize window">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id='si-body'><iframe id='si-iframe'></iframe></div>
+        </div>
+        <div id='si-resize-n' class='si-resize-edge' data-resize='n'></div>
+        <div id='si-resize-s' class='si-resize-edge' data-resize='s'></div>
+        <div id='si-resize-e' class='si-resize-edge' data-resize='e'></div>
+        <div id='si-resize-w' class='si-resize-edge' data-resize='w'></div>
+        <div id='si-resize-ne' class='si-resize-corner' data-resize='ne'></div>
+        <div id='si-resize-nw' class='si-resize-corner' data-resize='nw'></div>
+        <div id='si-resize-se' class='si-resize-corner' data-resize='se'></div>
+        <div id='si-resize-sw' class='si-resize-corner' data-resize='sw'></div>
+    </script>
+
+    <script type="module" src="./main.ts"></script>
+</body>
+</html>

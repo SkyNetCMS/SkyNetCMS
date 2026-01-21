@@ -1,0 +1,209 @@
+/* ===== Dashboard Page Styles ===== */
+@import '../../styles/global.css';
+
+/* ===== Page Layout ===== */
+html, body {
+    overflow: hidden;
+}
+
+/* ===== Service Injector Tab Styling ===== */
+#si-tab {
+    background: var(--sn-bg-secondary) !important;
+    border: 1px solid var(--sn-border) !important;
+    border-right: none !important;
+    border-radius: var(--sn-radius-md) 0 0 var(--sn-radius-md) !important;
+    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.3) !important;
+    padding: 0 !important;
+}
+
+#si-tab:hover {
+    background: var(--sn-bg-tertiary) !important;
+    border-color: var(--sn-accent) !important;
+}
+
+#si-tab a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 10px;
+    color: var(--sn-text-secondary);
+    text-decoration: none;
+    font-family: var(--sn-font-sans);
+    font-size: 11px;
+    font-weight: 500;
+}
+
+#si-tab:hover a {
+    color: var(--sn-accent);
+}
+
+#si-tab svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* ===== Service Injector Window Styling ===== */
+#si-window {
+    background: var(--sn-bg-secondary) !important;
+    border: 1px solid var(--sn-border) !important;
+    border-radius: var(--sn-radius-lg) !important;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5) !important;
+    overflow: hidden !important;
+}
+
+#si-inner {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== Header/Toolbar ===== */
+#si-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--sn-space-2) var(--sn-space-3);
+    background: var(--sn-bg-secondary);
+    border-bottom: 1px solid var(--sn-border);
+    height: 44px;
+    cursor: move;
+    flex-shrink: 0;
+}
+
+.sn-toolbar-title {
+    display: flex;
+    align-items: center;
+    gap: var(--sn-space-2);
+    color: var(--sn-text-primary);
+    font-family: var(--sn-font-sans);
+    font-size: 13px;
+    font-weight: 600;
+    user-select: none;
+}
+
+.sn-toolbar-logo {
+    width: 24px;
+    height: 24px;
+}
+
+.sn-toolbar-title .accent {
+    color: var(--sn-accent);
+}
+
+/* ===== Toolbar Actions ===== */
+.sn-toolbar-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.sn-toolbar-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: var(--sn-bg-tertiary);
+    border: 1px solid var(--sn-border-hover);
+    border-radius: 6px;
+    color: var(--sn-text-primary);
+    font-family: var(--sn-font-sans);
+    font-size: var(--sn-text-xs);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--sn-transition-fast);
+}
+
+.sn-toolbar-btn svg {
+    width: 14px;
+    height: 14px;
+    stroke: currentColor;
+}
+
+.sn-toolbar-btn:hover {
+    background: var(--sn-bg-elevated);
+    border-color: var(--sn-accent);
+    color: var(--sn-accent);
+}
+
+.sn-toolbar-btn:active {
+    background: #0f3460;
+}
+
+.sn-toolbar-btn[disabled] {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.sn-toolbar-btn[disabled]:hover {
+    background: var(--sn-bg-tertiary);
+    border-color: var(--sn-border-hover);
+    color: var(--sn-text-primary);
+}
+
+/* Close/Minimize Button */
+.sn-toolbar-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    background: var(--sn-bg-tertiary);
+    border: 1px solid var(--sn-border-hover);
+    border-radius: 6px;
+    color: var(--sn-text-secondary);
+    cursor: pointer;
+    transition: all var(--sn-transition-fast);
+}
+
+.sn-toolbar-close svg {
+    width: 14px;
+    height: 14px;
+    stroke: currentColor;
+}
+
+.sn-toolbar-close:hover {
+    background: var(--sn-error-bg);
+    border-color: var(--sn-error);
+    color: var(--sn-error);
+}
+
+/* ===== Content Area ===== */
+#si-body {
+    flex: 1;
+    overflow: hidden;
+    background: var(--sn-bg-primary);
+}
+
+#si-iframe {
+    border: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* ===== Resize Handles ===== */
+.si-resize-corner {
+    opacity: 0 !important;
+    background: transparent !important;
+    transition: opacity 0.2s ease !important;
+}
+
+#si-window:hover .si-resize-corner {
+    opacity: 0.5 !important;
+    background: var(--sn-border-hover) !important;
+}
+
+.si-resize-corner {
+    width: 10px !important;
+    height: 10px !important;
+    border-radius: 2px !important;
+}
+
+/* Shadow element for drag preview */
+#si-shadow {
+    background: var(--sn-bg-secondary) !important;
+    border: 2px dashed var(--sn-accent) !important;
+    border-radius: var(--sn-radius-lg) !important;
+    opacity: 0.5 !important;
+}
