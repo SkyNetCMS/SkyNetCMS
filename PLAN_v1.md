@@ -14,7 +14,7 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 | M2: OpenResty/Nginx Layer | **Complete** | 4 features |
 | M2.5: First-Time Registration | **Complete** | 7 features |
 | M3: OpenCode Integration | **Complete** | 6 features |
-| M3.5: Initial Branding & Styling | Not Started | 7 features |
+| M3.5: Initial Branding & Styling | **Complete** | 6 features |
 | M4: Initial Template & Content Serving | Not Started | 4 features |
 | M5: Integration & E2E Testing | Not Started | 3 features |
 | M6: Documentation & MVP Polish | Not Started | 3 features |
@@ -245,42 +245,59 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 
 **Goal**: Establish foundational branding for SkyNetCMS admin interface.
 
-### Feature 3.5.1: Color Palette
-- [ ] Define CSS custom properties (variables)
-- [ ] Primary, secondary, accent colors
-- [ ] Text colors (normal, muted, inverse)
-- [ ] Border and shadow colors
-- [ ] Apply to admin dashboard
+**Reference**: See [STYLE_GUIDE.md](STYLE_GUIDE.md) for complete branding specification.
 
-### Feature 3.5.2: Floating Window Styling
-- [ ] Custom header bar with SkyNetCMS branding
-- [ ] Action buttons styling (refresh, future element selector)
-- [ ] Border radius, shadows
-- [ ] Resize handles styling
+**Key Decisions**:
+- **Aesthetic**: Dark & Techy (fits "SkyNet" name)
+- **Primary Accent**: Cyan `#00d4ff` (replacing original red `#e94560`)
+- **Logo**: Hexagonal neural network icon + "SkyNetCMS" text
 
-### Feature 3.5.3: Tab Styling
-- [ ] Custom tab appearance when window collapsed
-- [ ] Icon or logo in tab
-- [ ] Hover states
+### Feature 3.5.1: Style Guide Documentation
+- [x] Create STYLE_GUIDE.md with complete specification
+- [x] Define CSS custom properties (variables)
+- [x] Document color palette (dark theme, cyan accent)
+- [x] Document typography (system fonts, sizes, weights)
+- [x] Document spacing and border radius scales
+- [x] Document component patterns (buttons, inputs, cards)
 
-### Feature 3.5.4: Admin Toolbar (Optional)
-- [ ] Top toolbar with logo and quick actions
-- [ ] Or integrate into floating window header
+### Feature 3.5.2: Logo Assets
+- [x] Create hexagonal neural network SVG icon (`nginx/assets/logo-icon.svg`)
+- [x] Create full logo (icon + text) SVG (`nginx/assets/logo.svg`)
+- [x] Create compact logo for toolbar (`nginx/assets/logo-compact.svg`)
+- [x] Create favicon SVG (`nginx/assets/favicon.svg`)
+- [x] Place in `nginx/assets/` directory
+- [x] Update Dockerfile to copy assets to `/opt/admin-assets/`
+- [x] Add nginx location `/sn_admin/assets/` to serve assets
 
-### Feature 3.5.5: Logo
-- [ ] Create/add SkyNetCMS logo placeholder
-- [ ] SVG format for scalability
-- [ ] Document how to customize
+### Feature 3.5.3: Apply Styles to Admin Dashboard
+- [x] Update `nginx/admin-dashboard/index.html` with new color scheme
+- [x] Replace red accent (`#e94560`) with cyan (`#00d4ff`)
+- [x] Apply CSS custom properties from style guide
+- [x] Update floating window header with inline SVG logo
+- [x] Add favicon reference
 
-### Feature 3.5.6: Typography
-- [ ] Select system font stack or web font
-- [ ] Font sizes for headers, body, buttons
-- [ ] Apply consistently
+### Feature 3.5.4: Apply Styles to Registration Page
+- [x] Update `nginx/admin-registration/index.html` with new color scheme
+- [x] Replace red accent with cyan throughout
+- [x] Apply CSS custom properties from style guide
+- [x] Add inline SVG logo to registration form
+- [x] Add favicon reference
 
-### Feature 3.5.7: Documentation
-- [ ] Document CSS variables for customization
-- [ ] Document how to add custom themes
-- [ ] Document logo replacement process
+### Feature 3.5.5: Floating Window Styling
+- [x] Custom header bar with SkyNetCMS logo (inline SVG)
+- [x] Action buttons using style guide patterns (ghost buttons)
+- [x] Border radius, shadows per style guide
+- [x] Tab styling when window collapsed
+- [x] SVG icons for refresh/select/minimize buttons
+
+### Feature 3.5.6: Verification
+- [x] Admin dashboard renders with new branding
+- [x] Registration page renders with new branding
+- [x] Logo displays correctly at all sizes
+- [x] Assets served correctly at `/sn_admin/assets/`
+- [x] Favicon loads correctly
+- [ ] Manual verification: interactive hover/focus states work
+- [ ] Manual verification: color contrast meets accessibility standards
 
 ---
 
@@ -440,6 +457,7 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 | 2026-01-11 | M2.5 Complete: First-time registration with Lua auth, rate limiting |
 | 2026-01-11 | M3 Complete: OpenCode integration with service-injector wrapper mode dashboard |
 | 2026-01-11 | M3.5 Added: New milestone for initial branding & styling |
+| 2026-01-20 | M3.5 Complete: Full branding implementation (style guide, logo, dashboard, registration) |
 
 ---
 

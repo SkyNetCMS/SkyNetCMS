@@ -147,6 +147,11 @@ COPY nginx/admin-dashboard/ /opt/admin-dashboard/
 COPY nginx/admin-registration/ /opt/admin-registration/
 
 # ----------------------------------------
+# Copy admin assets (logo, favicon)
+# ----------------------------------------
+COPY nginx/assets/ /opt/admin-assets/
+
+# ----------------------------------------
 # Copy OpenCode system config
 # ----------------------------------------
 RUN mkdir -p /root/.config/opencode

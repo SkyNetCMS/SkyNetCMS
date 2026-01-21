@@ -4,8 +4,216 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkyNetCMS Admin</title>
+    <link rel="icon" type="image/svg+xml" href="/sn_admin/assets/favicon.svg">
+    
+    <!-- Service Injector Custom Styles -->
+    <style id="si-custom-styles">
+        /* ===== Tab Styling ===== */
+        #si-tab {
+            background: #1a1a2e !important;
+            border: 1px solid #2a2a4a !important;
+            border-right: none !important;
+            border-radius: 8px 0 0 8px !important;
+            box-shadow: -4px 0 12px rgba(0, 0, 0, 0.3) !important;
+            padding: 0 !important;
+        }
+
+        #si-tab:hover {
+            background: #16213e !important;
+            border-color: #00d4ff !important;
+        }
+
+        #si-tab a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 10px;
+            color: #a0aec0;
+            text-decoration: none;
+            font-family: system-ui, -apple-system, sans-serif;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        #si-tab:hover a {
+            color: #00d4ff;
+        }
+
+        #si-tab svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* ===== Window Styling ===== */
+        #si-window {
+            background: #1a1a2e !important;
+            border: 1px solid #2a2a4a !important;
+            border-radius: 12px !important;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5) !important;
+            overflow: hidden !important;
+        }
+
+        #si-inner {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== Header Styling ===== */
+        #si-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: #1a1a2e;
+            border-bottom: 1px solid #2a2a4a;
+            height: 44px;
+            cursor: move;
+            flex-shrink: 0;
+        }
+
+        .sn-toolbar-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ffffff;
+            font-family: system-ui, -apple-system, sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            user-select: none;
+        }
+
+        .sn-toolbar-logo {
+            width: 24px;
+            height: 24px;
+        }
+
+        .sn-toolbar-title .accent {
+            color: #00d4ff;
+        }
+
+        /* ===== Action Buttons ===== */
+        .sn-toolbar-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .sn-toolbar-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            background: #16213e;
+            border: 1px solid #3a3a5a;
+            border-radius: 6px;
+            color: #ffffff;
+            font-family: system-ui, -apple-system, sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .sn-toolbar-btn svg {
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
+        }
+
+        .sn-toolbar-btn:hover {
+            background: #1e2a4a;
+            border-color: #00d4ff;
+            color: #00d4ff;
+        }
+
+        .sn-toolbar-btn:active {
+            background: #0f3460;
+        }
+
+        .sn-toolbar-btn[disabled] {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .sn-toolbar-btn[disabled]:hover {
+            background: #16213e;
+            border-color: #3a3a5a;
+            color: #ffffff;
+        }
+
+        /* Close/Minimize Button */
+        .sn-toolbar-close {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            background: #16213e;
+            border: 1px solid #3a3a5a;
+            border-radius: 6px;
+            color: #a0aec0;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .sn-toolbar-close svg {
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
+        }
+
+        .sn-toolbar-close:hover {
+            background: rgba(245, 101, 101, 0.15);
+            border-color: #f56565;
+            color: #f56565;
+        }
+
+        /* ===== Body/Content Area ===== */
+        #si-body {
+            flex: 1;
+            overflow: hidden;
+            background: #0f0f1a;
+        }
+
+        #si-iframe {
+            border: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* ===== Resize Handles ===== */
+        /* Hide resize corners by default, show subtle on hover */
+        .si-resize-corner {
+            opacity: 0 !important;
+            background: transparent !important;
+            transition: opacity 0.2s ease !important;
+        }
+
+        #si-window:hover .si-resize-corner {
+            opacity: 0.5 !important;
+            background: #3a3a5a !important;
+        }
+
+        .si-resize-corner {
+            width: 10px !important;
+            height: 10px !important;
+            border-radius: 2px !important;
+        }
+
+        /* Shadow element for drag preview */
+        #si-shadow {
+            background: #1a1a2e !important;
+            border: 2px dashed #00d4ff !important;
+            border-radius: 12px !important;
+            opacity: 0.5 !important;
+        }
+    </style>
+
     <style>
-        /* Reset and base styles */
+        /* ===== Page Base Styles ===== */
         * {
             margin: 0;
             padding: 0;
@@ -16,115 +224,87 @@
             height: 100%;
             overflow: hidden;
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-
-        /* 
-         * Custom styles for service-injector elements
-         * These override the default service-injector styles
-         */
-        
-        /* Style the floating window header to include our toolbar */
-        #si-window {
-            border-radius: 8px !important;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
-        }
-
-        /* Custom header styling - replaces default #si-header */
-        #si-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 12px;
-            background: #1a1a2e;
-            border-bottom: 1px solid #2a2a4a;
-            height: 40px;
-            cursor: move;
-        }
-
-        .sn-toolbar-title {
-            color: #fff;
-            font-size: 13px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        .sn-toolbar-actions {
-            display: flex;
-            gap: 4px;
-        }
-
-        .sn-toolbar-btn {
-            background: transparent;
-            border: 1px solid #3a3a5a;
-            color: #ccc;
-            padding: 4px 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            transition: all 0.2s;
-        }
-
-        .sn-toolbar-btn:hover {
-            background: #2a2a4a;
-            color: #fff;
-            border-color: #4a4a6a;
-        }
-
-        .sn-toolbar-btn:active {
-            background: #3a3a5a;
-        }
-
-        .sn-toolbar-btn[disabled] {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .sn-toolbar-close {
-            background: transparent;
-            border: 1px solid #3a3a5a;
-            color: #ccc;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            padding: 4px 10px;
-            margin-left: 4px;
-            border-radius: 4px;
-            transition: all 0.2s;
-            line-height: 1;
-        }
-
-        .sn-toolbar-close:hover {
-            background: #4a2a2a;
-            color: #ff8888;
-            border-color: #6a3a3a;
+            background: #0f0f1a;
         }
     </style>
 
-    <!-- Custom window template for service-injector -->
+    <!-- Custom Tab Template -->
+    <script type="text/template" id="si-tab-template">
+        <a onclick='return siToggleWindow();' href='#' title="Open AI Assistant">
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.6">
+                    <line x1="32" y1="32" x2="48" y2="20"/>
+                    <line x1="32" y1="32" x2="48" y2="44"/>
+                    <line x1="32" y1="32" x2="16" y2="32"/>
+                    <line x1="48" y1="20" x2="48" y2="44"/>
+                </g>
+                <polygon points="32,22 40,27 40,37 32,42 24,37 24,27" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="2"/>
+                <polygon points="48,12 54,16 54,24 48,28 42,24 42,16" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.5"/>
+                <polygon points="48,36 54,40 54,48 48,52 42,48 42,40" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.5"/>
+                <polygon points="16,24 22,28 22,36 16,40 10,36 10,28" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.5"/>
+                <g fill="currentColor">
+                    <circle cx="32" cy="32" r="3"/>
+                    <circle cx="48" cy="20" r="2.5"/>
+                    <circle cx="48" cy="44" r="2.5"/>
+                    <circle cx="16" cy="32" r="2.5"/>
+                </g>
+            </svg>
+            <span>AI</span>
+        </a>
+    </script>
+
+    <!-- Custom Window Template -->
     <script type="text/template" id="si-window-template">
         <div id='si-inner'>
             <div id='si-header'>
-                <div class="sn-toolbar-title">SkyNetCMS AI</div>
+                <div class="sn-toolbar-title">
+                    <svg class="sn-toolbar-logo" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round" opacity="0.6">
+                            <line x1="32" y1="32" x2="48" y2="20"/>
+                            <line x1="32" y1="32" x2="48" y2="44"/>
+                            <line x1="32" y1="32" x2="16" y2="32"/>
+                            <line x1="48" y1="20" x2="48" y2="44"/>
+                        </g>
+                        <polygon points="32,22 40,27 40,37 32,42 24,37 24,27" fill="#00d4ff" fill-opacity="0.15" stroke="#00d4ff" stroke-width="2"/>
+                        <polygon points="48,12 54,16 54,24 48,28 42,24 42,16" fill="#00d4ff" fill-opacity="0.1" stroke="#00d4ff" stroke-width="1.5"/>
+                        <polygon points="48,36 54,40 54,48 48,52 42,48 42,40" fill="#00d4ff" fill-opacity="0.1" stroke="#00d4ff" stroke-width="1.5"/>
+                        <polygon points="16,24 22,28 22,36 16,40 10,36 10,28" fill="#00d4ff" fill-opacity="0.1" stroke="#00d4ff" stroke-width="1.5"/>
+                        <g fill="#00d4ff">
+                            <circle cx="32" cy="32" r="3"/>
+                            <circle cx="48" cy="20" r="2.5"/>
+                            <circle cx="48" cy="44" r="2.5"/>
+                            <circle cx="16" cy="32" r="2.5"/>
+                        </g>
+                        <circle cx="32" cy="32" r="6" fill="#00d4ff" fill-opacity="0.2"/>
+                    </svg>
+                    <span>SkyNet<span class="accent">CMS</span></span>
+                </div>
                 <div class="sn-toolbar-actions">
                     <button class="sn-toolbar-btn" onclick="refreshMainPreview()" title="Refresh website preview">
-                        <span>&#8635;</span> Refresh
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 2v6h-6"></path>
+                            <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+                            <path d="M3 22v-6h6"></path>
+                            <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+                        </svg>
+                        Refresh
                     </button>
                     <button class="sn-toolbar-btn" onclick="selectElement()" title="Select element (coming soon)" disabled>
-                        <span>&#9678;</span> Select
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"></path>
+                            <path d="M13 13l6 6"></path>
+                        </svg>
+                        Select
                     </button>
-                    <button class="sn-toolbar-close" onclick="siToggleWindow()" title="Close window">X</button>
+                    <button class="sn-toolbar-close" onclick="siToggleWindow()" title="Minimize window">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
                 </div>
             </div>
             <div id='si-body'><iframe id='si-iframe'></iframe></div>
         </div>
-        <!-- Resize handles (required for resizable window) -->
         <div id='si-resize-n' class='si-resize-edge' data-resize='n'></div>
         <div id='si-resize-s' class='si-resize-edge' data-resize='s'></div>
         <div id='si-resize-e' class='si-resize-edge' data-resize='e'></div>
@@ -160,7 +340,6 @@
         data-draggable="true"
         data-resizable="true"
         data-dockable="true"
-        data-hide-tab="true"
     ></script>
 
     <script>

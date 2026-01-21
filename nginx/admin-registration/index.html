@@ -4,99 +4,186 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkyNetCMS - Admin Setup</title>
+    <link rel="icon" type="image/svg+xml" href="/sn_admin/assets/favicon.svg">
     <style>
+        /* ===== SkyNetCMS Design Tokens ===== */
+        :root {
+            /* Background Colors */
+            --sn-bg-primary:     #0f0f1a;
+            --sn-bg-secondary:   #1a1a2e;
+            --sn-bg-tertiary:    #16213e;
+            --sn-bg-elevated:    #1e2a4a;
+            
+            /* Accent Colors */
+            --sn-accent:         #00d4ff;
+            --sn-accent-hover:   #33ddff;
+            --sn-accent-active:  #00a8cc;
+            --sn-accent-muted:   #0099b8;
+            --sn-accent-subtle:  rgba(0, 212, 255, 0.1);
+            
+            /* Text Colors */
+            --sn-text-primary:   #ffffff;
+            --sn-text-secondary: #a0aec0;
+            --sn-text-muted:     #718096;
+            --sn-text-inverse:   #1a1a2e;
+            
+            /* Border Colors */
+            --sn-border:         #2a2a4a;
+            --sn-border-hover:   #3a3a5a;
+            --sn-border-focus:   #00d4ff;
+            
+            /* Status Colors */
+            --sn-success:        #48bb78;
+            --sn-success-bg:     rgba(72, 187, 120, 0.1);
+            --sn-error:          #f56565;
+            --sn-error-bg:       rgba(245, 101, 101, 0.1);
+            
+            /* Shadows */
+            --sn-shadow-lg:      0 8px 16px rgba(0, 0, 0, 0.4);
+            --sn-shadow-xl:      0 20px 60px rgba(0, 0, 0, 0.5);
+            --sn-shadow-glow:    0 0 20px rgba(0, 212, 255, 0.3);
+            
+            /* Spacing */
+            --sn-space-2:  8px;
+            --sn-space-3:  12px;
+            --sn-space-4:  16px;
+            --sn-space-5:  20px;
+            --sn-space-6:  24px;
+            --sn-space-8:  32px;
+            --sn-space-10: 40px;
+            
+            /* Border Radius */
+            --sn-radius-md:  8px;
+            --sn-radius-lg:  12px;
+            --sn-radius-xl:  16px;
+            
+            /* Typography */
+            --sn-font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            --sn-text-xs:   12px;
+            --sn-text-sm:   14px;
+            --sn-text-base: 16px;
+            --sn-text-3xl:  28px;
+        }
+
+        /* ===== Reset ===== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        /* ===== Page Layout ===== */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            font-family: var(--sn-font-sans);
+            background: 
+                radial-gradient(at 20% 80%, rgba(0, 212, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(at 80% 20%, rgba(0, 212, 255, 0.05) 0%, transparent 50%),
+                linear-gradient(135deg, var(--sn-bg-primary) 0%, var(--sn-bg-tertiary) 50%, #0f3460 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: var(--sn-space-5);
         }
 
+        /* ===== Card Container ===== */
         .container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
+            background: var(--sn-bg-secondary);
+            border: 1px solid var(--sn-border);
+            border-radius: var(--sn-radius-xl);
+            box-shadow: var(--sn-shadow-xl);
+            padding: var(--sn-space-10);
             width: 100%;
             max-width: 420px;
         }
 
+        /* ===== Logo Section ===== */
         .logo {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: var(--sn-space-8);
+        }
+
+        .logo-icon {
+            width: 64px;
+            height: 64px;
+            margin-bottom: var(--sn-space-4);
         }
 
         .logo h1 {
-            font-size: 28px;
-            color: #1a1a2e;
+            font-size: var(--sn-text-3xl);
+            color: var(--sn-text-primary);
             font-weight: 700;
             letter-spacing: -0.5px;
         }
 
-        .logo span {
-            color: #e94560;
+        .logo h1 .accent {
+            color: var(--sn-accent);
         }
 
         .logo p {
-            color: #666;
-            font-size: 14px;
-            margin-top: 8px;
+            color: var(--sn-text-secondary);
+            font-size: var(--sn-text-sm);
+            margin-top: var(--sn-space-2);
         }
 
+        /* ===== Form Elements ===== */
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: var(--sn-space-5);
         }
 
         label {
             display: block;
-            color: #333;
+            color: var(--sn-text-secondary);
             font-weight: 500;
-            margin-bottom: 8px;
-            font-size: 14px;
+            margin-bottom: var(--sn-space-2);
+            font-size: var(--sn-text-sm);
         }
 
         input {
             width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
+            padding: var(--sn-space-3) var(--sn-space-4);
+            background: var(--sn-bg-primary);
+            color: var(--sn-text-primary);
+            border: 2px solid var(--sn-border);
+            border-radius: var(--sn-radius-md);
+            font-size: var(--sn-text-base);
+            font-family: var(--sn-font-sans);
             transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input::placeholder {
+            color: var(--sn-text-muted);
         }
 
         input:focus {
             outline: none;
-            border-color: #e94560;
-            box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.1);
+            border-color: var(--sn-border-focus);
+            box-shadow: 0 0 0 3px var(--sn-accent-subtle);
         }
 
         input.error {
-            border-color: #dc3545;
+            border-color: var(--sn-error);
+        }
+
+        input.error:focus {
+            box-shadow: 0 0 0 3px var(--sn-error-bg);
         }
 
         .password-requirements {
-            font-size: 12px;
-            color: #888;
-            margin-top: 6px;
+            font-size: var(--sn-text-xs);
+            color: var(--sn-text-muted);
+            margin-top: var(--sn-space-2);
         }
 
+        /* ===== Alert Messages ===== */
         .error-message {
-            background: #fff5f5;
-            border: 1px solid #feb2b2;
-            color: #c53030;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
+            background: var(--sn-error-bg);
+            border: 1px solid var(--sn-error);
+            color: var(--sn-error);
+            padding: var(--sn-space-3) var(--sn-space-4);
+            border-radius: var(--sn-radius-md);
+            margin-bottom: var(--sn-space-5);
+            font-size: var(--sn-text-sm);
             display: none;
         }
 
@@ -105,13 +192,13 @@
         }
 
         .success-message {
-            background: #f0fff4;
-            border: 1px solid #9ae6b4;
-            color: #276749;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
+            background: var(--sn-success-bg);
+            border: 1px solid var(--sn-success);
+            color: var(--sn-success);
+            padding: var(--sn-space-3) var(--sn-space-4);
+            border-radius: var(--sn-radius-md);
+            margin-bottom: var(--sn-space-5);
+            font-size: var(--sn-text-sm);
             display: none;
         }
 
@@ -119,47 +206,76 @@
             display: block;
         }
 
+        /* ===== Primary Button ===== */
         button {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #e94560 0%, #c73659 100%);
-            color: white;
+            padding: var(--sn-space-3) var(--sn-space-5);
+            background: linear-gradient(135deg, var(--sn-accent) 0%, var(--sn-accent-active) 100%);
+            color: var(--sn-text-inverse);
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
+            border-radius: var(--sn-radius-md);
+            font-size: var(--sn-text-base);
             font-weight: 600;
+            font-family: var(--sn-font-sans);
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
         }
 
         button:hover {
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(233, 69, 96, 0.4);
+            box-shadow: var(--sn-shadow-glow);
         }
 
         button:active {
             transform: translateY(0);
         }
 
+        button:focus {
+            outline: none;
+            box-shadow: var(--sn-shadow-glow), 0 0 0 3px var(--sn-accent-subtle);
+        }
+
         button:disabled {
-            background: #ccc;
+            background: var(--sn-text-muted);
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
         }
 
+        /* ===== Footer ===== */
         .footer {
             text-align: center;
-            margin-top: 24px;
-            color: #888;
-            font-size: 12px;
+            margin-top: var(--sn-space-6);
+            color: var(--sn-text-muted);
+            font-size: var(--sn-text-xs);
+            line-height: 1.5;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="logo">
-            <h1>Sky<span>Net</span>CMS</h1>
+            <!-- Inline SVG logo icon -->
+            <svg class="logo-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round" opacity="0.6">
+                    <line x1="32" y1="32" x2="48" y2="20"/>
+                    <line x1="32" y1="32" x2="48" y2="44"/>
+                    <line x1="32" y1="32" x2="16" y2="32"/>
+                    <line x1="48" y1="20" x2="48" y2="44"/>
+                </g>
+                <polygon points="32,22 40,27 40,37 32,42 24,37 24,27" fill="#00d4ff" fill-opacity="0.15" stroke="#00d4ff" stroke-width="2"/>
+                <polygon points="48,12 54,16 54,24 48,28 42,24 42,16" fill="#00d4ff" fill-opacity="0.1" stroke="#00d4ff" stroke-width="1.5"/>
+                <polygon points="48,36 54,40 54,48 48,52 42,48 42,40" fill="#00d4ff" fill-opacity="0.1" stroke="#00d4ff" stroke-width="1.5"/>
+                <polygon points="16,24 22,28 22,36 16,40 10,36 10,28" fill="#00d4ff" fill-opacity="0.1" stroke="#00d4ff" stroke-width="1.5"/>
+                <g fill="#00d4ff">
+                    <circle cx="32" cy="32" r="3"/>
+                    <circle cx="48" cy="20" r="2.5"/>
+                    <circle cx="48" cy="44" r="2.5"/>
+                    <circle cx="16" cy="32" r="2.5"/>
+                </g>
+                <circle cx="32" cy="32" r="6" fill="#00d4ff" fill-opacity="0.2"/>
+            </svg>
+            <h1>SkyNet<span class="accent">CMS</span></h1>
             <p>Create your admin account to get started</p>
         </div>
 
@@ -208,7 +324,8 @@
         </form>
 
         <div class="footer">
-            This is a one-time setup. After registration, you'll use these credentials to access the admin panel.
+            This is a one-time setup. After registration,<br>
+            you'll use these credentials to access the admin panel.
         </div>
     </div>
 

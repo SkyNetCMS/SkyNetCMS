@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- SkyNetCMS Logo Icon - Hexagonal Neural Network -->
+  <!-- Primary color: #00d4ff (cyan) -->
+  
+  <!-- Connection lines between hexagons -->
+  <g stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round" opacity="0.6">
+    <!-- Center to top-right -->
+    <line x1="32" y1="32" x2="48" y2="20"/>
+    <!-- Center to bottom-right -->
+    <line x1="32" y1="32" x2="48" y2="44"/>
+    <!-- Center to left -->
+    <line x1="32" y1="32" x2="16" y2="32"/>
+    <!-- Top-right to bottom-right -->
+    <line x1="48" y1="20" x2="48" y2="44"/>
+  </g>
+  
+  <!-- Center hexagon (main/largest) -->
+  <polygon 
+    points="32,22 40,27 40,37 32,42 24,37 24,27" 
+    fill="#00d4ff" 
+    fill-opacity="0.15"
+    stroke="#00d4ff" 
+    stroke-width="2"
+  />
+  
+  <!-- Top-right hexagon -->
+  <polygon 
+    points="48,12 54,16 54,24 48,28 42,24 42,16" 
+    fill="#00d4ff" 
+    fill-opacity="0.1"
+    stroke="#00d4ff" 
+    stroke-width="1.5"
+  />
+  
+  <!-- Bottom-right hexagon -->
+  <polygon 
+    points="48,36 54,40 54,48 48,52 42,48 42,40" 
+    fill="#00d4ff" 
+    fill-opacity="0.1"
+    stroke="#00d4ff" 
+    stroke-width="1.5"
+  />
+  
+  <!-- Left hexagon -->
+  <polygon 
+    points="16,24 22,28 22,36 16,40 10,36 10,28" 
+    fill="#00d4ff" 
+    fill-opacity="0.1"
+    stroke="#00d4ff" 
+    stroke-width="1.5"
+  />
+  
+  <!-- Neural nodes (circles at hexagon centers) -->
+  <g fill="#00d4ff">
+    <!-- Center node (brightest) -->
+    <circle cx="32" cy="32" r="3"/>
+    <!-- Top-right node -->
+    <circle cx="48" cy="20" r="2.5"/>
+    <!-- Bottom-right node -->
+    <circle cx="48" cy="44" r="2.5"/>
+    <!-- Left node -->
+    <circle cx="16" cy="32" r="2.5"/>
+  </g>
+  
+  <!-- Subtle glow effect on center -->
+  <circle cx="32" cy="32" r="6" fill="#00d4ff" fill-opacity="0.2"/>
+</svg>
