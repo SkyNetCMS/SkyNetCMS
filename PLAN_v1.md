@@ -15,7 +15,7 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 | M2.5: First-Time Registration | **Complete** | 7 features |
 | M3: OpenCode Integration | **Complete** | 6 features |
 | M3.5: Initial Branding & Styling | **Complete** | 6 features |
-| M4: Initial Template & Content Serving | Not Started | 4 features |
+| M4: Initial Template & Content Serving | **Complete** | 4 features |
 | M5: Integration & E2E Testing | Not Started | 3 features |
 | M6: Documentation & MVP Polish | Not Started | 3 features |
 
@@ -296,8 +296,8 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 - [x] Logo displays correctly at all sizes
 - [x] Assets served correctly at `/sn_admin/assets/`
 - [x] Favicon loads correctly
-- [ ] Manual verification: interactive hover/focus states work
-- [ ] Manual verification: color contrast meets accessibility standards
+- [x] Manual verification: interactive hover/focus states work
+- [x] Manual verification: color contrast meets accessibility standards
 
 ---
 
@@ -306,42 +306,39 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 **Goal**: Create welcome template and establish build pipeline.
 
 ### Feature 4.1: Welcome Template
-- [ ] Create `templates/default/src/index.html` with:
-  - [ ] Clean, simple design
-  - [ ] "Welcome to SkyNetCMS" heading
-  - [ ] "Go to /sn_admin/ to start building" call-to-action
-  - [ ] Basic styling (inline or minimal CSS)
-- [ ] Create `templates/default/AGENTS.md` for site-building AI context
-- [ ] Create `templates/default/.opencode/` with repo-level config
-- [ ] Template should be a good starting point for customization
-- [ ] Include link to admin panel
+- [x] Create `templates/default/src/index.html` with:
+  - [x] Clean, simple design
+  - [x] "Welcome to SkyNetCMS" heading
+  - [x] "Go to /sn_admin/ to start building" call-to-action
+  - [x] Basic styling (inline or minimal CSS)
+- [x] Create `templates/default/AGENTS.md` for site-building AI context
+- [x] Create `templates/default/.opencode/` with repo-level config
+- [x] Template should be a good starting point for customization
+- [x] Include link to admin panel
 
 ### Feature 4.2: First-Run Initialization
-- [ ] Update `docker/scripts/init.sh` to:
-  - [ ] Check if `/data/website/` exists
-  - [ ] If not, initialize Git repo
-  - [ ] Copy entire `templates/default/` contents to `/data/website/`
-  - [ ] Copy `opencode/config/` to `~/.config/opencode/`
-  - [ ] Run initial build
-  - [ ] Create initial Git commit
-- [ ] Ensure idempotent (safe to run multiple times)
+- [x] Update `docker/scripts/init.sh` to:
+  - [x] Check if `/data/website/` exists
+  - [x] If not, initialize Git repo
+  - [x] Copy entire `templates/default/` contents to `/data/website/`
+  - [-] Copy `opencode/config/` to `~/.config/opencode/` (done in Dockerfile for security)
+  - [x] Run initial build
+  - [x] Create initial Git commit
+- [x] Ensure idempotent (safe to run multiple times)
 
 ### Feature 4.3: Build Pipeline
-- [ ] Create `docker/scripts/build-site.sh` with:
-  - [ ] Copy files from `src/` to `dist/`
-  - [ ] (Future: framework-specific build steps)
-  - [ ] Error handling and logging
-- [ ] Configure build trigger mechanism:
-  - [ ] Option A: Git hook (post-commit)
-  - [ ] Option B: File watcher
-  - [ ] Option C: AI explicitly calls build
-- [ ] Verify changes in src/ appear in dist/
+- [-] Create `docker/scripts/build-site.sh` - Obsolete: using Vite (`npm run build`) instead
+- [x] Build mechanism via Vite:
+  - [x] `vite.config.js` configured (src/ → dist/)
+  - [x] `npm run build` command available
+  - [-] Auto-trigger (git hook/watcher) - Skipped: manual build sufficient for MVP
+- [x] Verify changes in src/ appear in dist/
 
 ### Feature 4.4: Verification
-- [ ] Fresh container shows welcome page at `/`
-- [ ] Welcome page links to `/sn_admin/`
-- [ ] Build pipeline runs correctly
-- [ ] Built content is served by nginx
+- [x] Fresh container shows welcome page at `/`
+- [x] Welcome page links to `/sn_admin/`
+- [x] Build pipeline runs correctly
+- [x] Built content is served by nginx
 
 ---
 
@@ -458,6 +455,7 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 | 2026-01-11 | M3 Complete: OpenCode integration with service-injector wrapper mode dashboard |
 | 2026-01-11 | M3.5 Added: New milestone for initial branding & styling |
 | 2026-01-20 | M3.5 Complete: Full branding implementation (style guide, logo, dashboard, registration) |
+| 2026-01-22 | M4 Complete: Template already implemented with Vite; marked build-site.sh obsolete |
 
 ---
 
