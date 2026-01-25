@@ -76,10 +76,10 @@ RUN git clone --depth 1 --branch skynetcms \
     && cd packages/opencode \
     && ARCH=$(uname -m) \
     && if [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then \
-         bun run build --single --target=bun-linux-arm64 && \
+         bun run build --single && \
          cp dist/opencode-linux-arm64/bin/opencode /usr/local/bin/opencode; \
        else \
-         bun run build --single --target=bun-linux-x64-baseline && \
+         bun run build --single --baseline && \
          cp dist/opencode-linux-x64-baseline/bin/opencode /usr/local/bin/opencode; \
        fi \
     && chmod +x /usr/local/bin/opencode \
