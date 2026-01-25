@@ -64,18 +64,23 @@ ENV PATH="/root/.bun/bin:${PATH}"
 #   - Embedded frontend (no runtime dependency on app.opencode.ai)
 #   - All necessary patches for SkyNetCMS integration
 # Repository: https://github.com/SkyNetCMS/opencode (branch: skynetcms)
+#
+# Build targets:
+#   - arm64: standard target (modern ARM servers support all instructions)
+#   - amd64: baseline target for compatibility with older CPUs (no AVX2)
 # ----------------------------------------
 RUN git clone --depth 1 --branch skynetcms \
         https://github.com/SkyNetCMS/opencode.git /tmp/opencode \
     && cd /tmp/opencode \
     && bun install --frozen-lockfile \
     && cd packages/opencode \
-    && bun run build --single \
     && ARCH=$(uname -m) \
     && if [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then \
+         bun run build --single --target=bun-linux-arm64 && \
          cp dist/opencode-linux-arm64/bin/opencode /usr/local/bin/opencode; \
        else \
-         cp dist/opencode-linux-x64/bin/opencode /usr/local/bin/opencode; \
+         bun run build --single --target=bun-linux-x64-baseline && \
+         cp dist/opencode-linux-x64-baseline/bin/opencode /usr/local/bin/opencode; \
        fi \
     && chmod +x /usr/local/bin/opencode \
     && cd / \
