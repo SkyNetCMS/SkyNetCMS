@@ -14,7 +14,6 @@ FROM node:24-bookworm-slim AS opencode-builder
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         curl \
-        git \
         unzip \
         ca-certificates \
     && apt-get clean \
@@ -23,7 +22,7 @@ RUN apt-get update \
 RUN curl -fsSL https://bun.sh/install | bash -s "bun-v1.3.5"
 ENV PATH="/root/.bun/bin:${PATH}"
 
-# Clone and build OpenCode from SkyNetCMS fork
+# Copy OpenCode from git submodule (pinned to specific commit)
 # This fork includes:
 #   - --base-path support for reverse proxy deployment
 #   - Embedded frontend (no runtime dependency on app.opencode.ai)
@@ -33,17 +32,18 @@ ENV PATH="/root/.bun/bin:${PATH}"
 # Build targets:
 #   - arm64: standard target (modern ARM servers support all instructions)
 #   - amd64: baseline target for compatibility with older CPUs (no AVX2)
-RUN git clone --depth 1 --branch skynetcms \
-        https://github.com/SkyNetCMS/opencode.git /tmp/opencode \
-    && cd /tmp/opencode \
+#
+# To update OpenCode: git submodule update --remote opencode-src && git add opencode-src && git commit
+COPY opencode-src/ /tmp/opencode/
+RUN cd /tmp/opencode \
     && bun install --frozen-lockfile \
     && cd packages/opencode \
     && ARCH=$(uname -m) \
     && if [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then \
-         bun run build --single && \
+         OPENCODE_CHANNEL=skynetcms bun run build --single && \
          cp dist/opencode-linux-arm64/bin/opencode /usr/local/bin/opencode; \
        else \
-         bun run build --single --baseline && \
+         OPENCODE_CHANNEL=skynetcms bun run build --single --baseline && \
          cp dist/opencode-linux-x64-baseline/bin/opencode /usr/local/bin/opencode; \
        fi \
     && chmod +x /usr/local/bin/opencode

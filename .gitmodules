@@ -1,0 +1,4 @@
+[submodule "opencode-src"]
+	path = opencode-src
+	url = https://github.com/SkyNetCMS/opencode.git
+	branch = skynetcms
