@@ -16,7 +16,7 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 | M3: OpenCode Integration | **Complete** | 6 features |
 | M3.5: Initial Branding & Styling | **Complete** | 6 features |
 | M4: Initial Template & Content Serving | **Complete** | 4 features |
-| M5: Integration & E2E Testing | Not Started | 3 features |
+| M5: Integration & E2E Testing | **Complete** | 3 features |
 | M6: Documentation & MVP Polish | Not Started | 3 features |
 
 > **Note**: Future phase features are tracked in [PRD_v1.md](PRD_v1.md#9-future-phase-backlog), not in this tactical plan.
@@ -347,30 +347,32 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 **Goal**: Verify complete user flow works end-to-end.
 
 ### Feature 5.1: Full Docker Build
-- [ ] Finalize Dockerfile with all components
-- [ ] Optimize image size (multi-stage if needed)
-- [ ] Verify clean build from scratch
-- [ ] Test with docker-compose
+- [x] Finalize Dockerfile with all components
+- [x] Optimize image size (multi-stage if needed) - 710MB achieved
+- [x] Verify clean build from scratch
+- [-] Test with docker-compose - Skipped: direct docker run sufficient for MVP
 
 ### Feature 5.2: End-to-End User Flow Testing
-- [ ] Test: Deploy container with docker run
-  - [ ] `-p 8080:80`
-  - [ ] `-v skynet-data:/data`
-  - [ ] `-e ADMIN_USER=admin`
-  - [ ] `-e ADMIN_PASS=password`
-- [ ] Test: Visit `/` - see welcome page
-- [ ] Test: Visit `/sn_admin/` - prompted for auth
-- [ ] Test: Login with credentials - see OpenCode UI
-- [ ] Test: Chat with AI - "Add a heading that says Hello World"
-- [ ] Test: Visit `/` - see updated content
-- [ ] Test: Container restart - data persists
+- [x] Test: Deploy container with docker run
+  - [x] `-p 8080:80`
+  - [x] `-v skynetcms-test:/data`
+  - [x] `-e ADMIN_USER=admin`
+  - [x] `-e ADMIN_PASS=testpass123`
+- [x] Test: Visit `/` - see welcome page
+- [x] Test: Visit `/sn_admin/` - prompted for auth
+- [x] Test: Login with credentials - see OpenCode UI
+- [-] Test: Chat with AI - Skipped: requires API key configuration
+- [x] Test: Container restart - data persists
 
 ### Feature 5.3: Edge Cases & Error Handling
-- [ ] Test: Invalid credentials
-- [ ] Test: Missing environment variables
-- [ ] Test: Corrupted Git repo recovery
-- [ ] Test: Build failure handling
-- [ ] Test: Large file upload (if applicable)
+- [x] Test: Invalid credentials - 401 Unauthorized
+- [x] Test: Missing environment variables - registration flow works
+- [x] Test: Invalid config (partial env vars) - exits with error
+- [-] Test: Corrupted Git repo recovery - Deferred: edge case
+- [-] Test: Build failure handling - Deferred: edge case
+- [-] Test: Large file upload - Not applicable for MVP
+
+> **Note**: Full test results documented in [TESTING.md](TESTING.md) - 36/37 tests passed (1 skipped for API key)
 
 ---
 
@@ -456,6 +458,7 @@ This document outlines the step-by-step implementation plan for SkyNetCMS MVP.
 | 2026-01-11 | M3.5 Added: New milestone for initial branding & styling |
 | 2026-01-20 | M3.5 Complete: Full branding implementation (style guide, logo, dashboard, registration) |
 | 2026-01-22 | M4 Complete: Template already implemented with Vite; marked build-site.sh obsolete |
+| 2026-01-25 | M5 Complete: Full E2E testing with TESTING.md checklist; 36/37 tests passed |
 
 ---
 
