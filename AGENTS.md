@@ -71,3 +71,5 @@ Build: `docker exec <container> npm run build` (runs in `/data/website`)
 * Start container with "--rm" so it will die at the exit and next test will be on fresh container
 * If user testing is needed: in the ask specify login/password which was used for a container
 * Always call container for testing "skynetcms-test"
+* **Use `agent-browser` skill for UI testing** - automates browser interactions, screenshots, form filling
+* Test checklist: See `TESTING.md` for comprehensive E2E test cases
