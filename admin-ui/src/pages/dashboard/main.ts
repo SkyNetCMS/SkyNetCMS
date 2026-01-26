@@ -128,9 +128,31 @@ function initServiceInjector(): void {
 
 /**
  * Refresh the main website preview iframe
+ * @param event - Optional mouse event to check for modifier keys
+ * 
+ * Default: Reload current page (preserves scroll position and state)
+ * Ctrl+Click (Win/Linux) or Cmd+Click (Mac): Full reset to root URL (/)
  */
-function refreshMainPreview(): void {
-    if (injector) {
+function refreshMainPreview(event?: MouseEvent): void {
+    if (!injector) return;
+    
+    const mainIframe = injector.getMainIframe();
+    
+    // Ctrl+Click or Cmd+Click: Full reset to root
+    if (event?.ctrlKey || event?.metaKey) {
+        injector.navigateMain('/');
+        return;
+    }
+    
+    // Default: Smart reload of current page
+    if (mainIframe?.contentWindow) {
+        try {
+            mainIframe.contentWindow.location.reload();
+        } catch {
+            // Fallback if cross-origin (shouldn't happen for same-origin content)
+            injector.refreshMain();
+        }
+    } else {
         injector.refreshMain();
     }
 }
