@@ -14,8 +14,8 @@ fi
 
 # Generate htpasswd file using bcrypt (-B flag)
 # -c = create file
-# -b = batch mode (password from command line)
+# -i = read password from stdin (avoids password in process list)
 # -B = bcrypt hashing (secure)
-htpasswd -cbB /data/auth/.htpasswd "$ADMIN_USER" "$ADMIN_PASS"
+echo "$ADMIN_PASS" | htpasswd -ciB /data/auth/.htpasswd "$ADMIN_USER"
 
 echo "[OK] Authentication configured for user: $ADMIN_USER"

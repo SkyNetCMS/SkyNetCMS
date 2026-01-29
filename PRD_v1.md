@@ -294,12 +294,12 @@ The Minimum Viable Product delivers:
 
 ### 8.1 MVP Launch Criteria
 
-- [ ] User can deploy container with single command
-- [ ] User can access welcome page at `/`
-- [ ] User can authenticate at `/sn_admin/`
-- [ ] User can chat with AI to generate website
-- [ ] Generated website visible at `/`
-- [ ] Changes persist across container restarts
+- [x] User can deploy container with single command
+- [x] User can access welcome page at `/`
+- [x] User can authenticate at `/sn_admin/`
+- [x] User can chat with AI to generate website (requires API key configuration)
+- [x] Generated website visible at `/`
+- [x] Changes persist across container restarts
 
 ### 8.2 Key Metrics (Post-Launch)
 

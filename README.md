@@ -13,15 +13,6 @@ AI-Powered Conversational CMS - Build websites through chat.
 - **No vendor lock-in** - Standard HTML/CSS/JS stored in a Git repository
 - **Self-hosted** - Your data stays on your infrastructure
 
-## Screenshot
-
-<!-- TODO: Add screenshot of the admin interface -->
-*Screenshot coming soon - Chat with AI to build and modify your website in real-time*
-
-## Live Demo
-
-Try SkyNetCMS without installing: **https://demo.skynetcms.com**
-
 ## Quick Start
 
 Pull the image and run:

@@ -38,12 +38,7 @@ else
 fi
 
 # ----------------------------------------
-# 2. Initialize data directories
-# ----------------------------------------
-# mkdir -p /data/website/src /data/website/dist /run
-
-# ----------------------------------------
-# 3. First-run: Copy template if repo is empty
+# 2. First-run: Copy template if repo is empty
 # ----------------------------------------
 if [ ! -f "/data/website/src/index.html" ]; then
     echo "[INFO] First run detected - initializing from template..."
@@ -56,7 +51,6 @@ if [ ! -f "/data/website/dist/index.html" ]; then
     echo "[INFO] Running initial build..."
     cd /data/website
     npm run build
-    # opencode run "Register this project at opencode and quickly exit"
     
     # Initialize Git repository
     git init
@@ -92,13 +86,11 @@ mkdir -p /data/opencode/data /data/opencode/state /tmp/opencode-cache
 # ----------------------------------------
 echo "[INFO] Starting OpenCode web server..."
 cd /data/website
-pwd
+
 # Start OpenCode web server in background
 # Port 3000, localhost only (nginx will proxy to it)
 # --base-path allows OpenCode to work behind reverse proxy at /sn_admin/oc/
-# opencode web --port 3000 --hostname 127.0.0.1 --base-path /sn_admin/oc > /var/log/opencode.log 2>&1 &
 OPENCODE_TEST_HOME=/data/website opencode web --port 3000 --hostname 127.0.0.1 --base-path /sn_admin/oc &
-# opencode web --port 3000 --hostname 127.0.0.1 --base-path /sn_admin/oc &
 OPENCODE_PID=$!
 echo "[INFO] OpenCode started with PID: $OPENCODE_PID"
 
@@ -137,17 +129,7 @@ else
 fi
 
 # ----------------------------------------
-# 6. Run build if dist/ is missing
-# ----------------------------------------
-# if [ ! -d "/data/website/dist" ] || [ -z "$(ls -A /data/website/dist 2>/dev/null)" ]; then
-#     echo "[INFO] dist/ missing or empty, running build..."
-#     /scripts/build-site.sh
-# else
-#     echo "[OK] dist/ exists, skipping build"
-# fi
-
-# ----------------------------------------
-# 7. Start OpenResty (nginx)
+# 6. Start OpenResty (nginx)
 # ----------------------------------------
 echo "[INFO] Starting OpenResty..."
 echo "============================================"
