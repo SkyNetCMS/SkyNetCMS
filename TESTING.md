@@ -63,11 +63,14 @@ docker stop skynetcms-test 2>/dev/null; docker volume rm skynetcms-test 2>/dev/n
 | F. OpenCode Integration | 3/4 | 0/4 | 1/4 |
 | G. Persistence | 3/3 | 0/3 | 0/3 |
 | H. Error Handling | 2/2 | 0/2 | 0/2 |
-| **Total** | **36/37** | **0/37** | **1/37** |
+| I. Worktree & Draft/Publish | 0/10 | 0/10 | 0/10 |
+| **Total** | **36/47** | **0/47** | **1/47** |
 
 **Test Date**: 2026-01-25  
 **Tester**: OpenCode AI  
-**Image Version**: skynetcms:latest (710MB)  
+**Image Version**: skynetcms:latest (710MB)
+
+> **Note**: Section I tests are new (worktree workflow) and require implementation + testing.  
 
 ---
 
@@ -350,6 +353,88 @@ Setup: Container running, logged in, OpenCode visible
   - Steps: Check container starts even if OpenCode takes time
   - Expected: Container continues after 30s timeout with warning if needed
   - Actual: OpenCode ready in 3s; timeout handling code present
+
+---
+
+## I. Worktree & Draft/Publish Tests
+
+### I.1 Dev Server Worktree Detection
+
+- [ ] **I.1.1** Dev server falls back to main when no worktrees exist
+  - Steps:
+    1. Fresh container, no worktrees created
+    2. Visit `/sn_admin/dev/`
+  - Expected: Dev server starts in `/data/website/`, shows welcome page with HMR
+  - Actual:
+
+- [ ] **I.1.2** Dev server detects most recent worktree
+  - Steps:
+    1. Create worktree via OpenCode UI (or manually via `git worktree add`)
+    2. Make a change in the worktree
+    3. Visit `/sn_admin/dev/`
+  - Expected: Dev server runs in the worktree directory, shows worktree content
+  - Actual:
+
+- [ ] **I.1.3** Worktree override via query param works
+  - Steps:
+    1. Create two worktrees: `brave-falcon` and `swift-tiger`
+    2. Visit `/sn_admin/dev/?worktree=swift-tiger`
+  - Expected: Dev server runs in `swift-tiger` worktree specifically
+  - Actual:
+
+### I.2 OpenCode Worktree UI
+
+- [ ] **I.2.1** New session shows worktree selector
+  - Steps:
+    1. Open OpenCode UI at `/sn_admin/oc/`
+    2. Start a new session
+  - Expected: Options include "Main branch", existing worktrees, "Create new worktree"
+  - Actual:
+
+- [ ] **I.2.2** Can create new worktree from UI
+  - Steps:
+    1. Select "Create new worktree" in session dialog
+    2. Wait for worktree creation
+  - Expected: New worktree created with name like `opencode/brave-falcon`
+  - Actual:
+
+- [ ] **I.2.3** Worktree appears in sidebar
+  - Steps:
+    1. Create a worktree
+    2. Check sidebar workspace list
+  - Expected: New worktree visible as a "sandbox" workspace
+  - Actual:
+
+### I.3 Publish Workflow (Requires API Key)
+
+- [ ] **I.3.1** AI can publish changes *(requires API key)*
+  - Steps:
+    1. Work in a worktree, make changes
+    2. Tell AI "publish my changes"
+  - Expected: AI merges to main, builds, confirms success
+  - Actual:
+
+- [ ] **I.3.2** Pre-publish tag is created *(requires API key)*
+  - Steps:
+    1. After publish, check git tags
+    2. `git tag -l "pre-publish-*"`
+  - Expected: Tag like `pre-publish-20260206-153000` exists
+  - Actual:
+
+### I.4 Rollback Workflow (Requires API Key)
+
+- [ ] **I.4.1** AI can list rollback points *(requires API key)*
+  - Steps:
+    1. After at least one publish
+    2. Ask AI "what versions can I rollback to?"
+  - Expected: AI lists available pre-publish tags
+  - Actual:
+
+- [ ] **I.4.2** AI can rollback to previous version *(requires API key)*
+  - Steps:
+    1. Ask AI "rollback to previous version"
+  - Expected: AI resets main to previous tag, rebuilds
+  - Actual:
 
 ---
 

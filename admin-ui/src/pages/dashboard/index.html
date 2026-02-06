@@ -77,13 +77,10 @@
                         </svg>
                         Refresh
                     </button>
-                    <button class="sn-toolbar-btn sn-dev-toggle" id="devToggleBtn" onclick="toggleDevMode(event)" title="Toggle dev server preview (live reload)">
-                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="16 18 22 12 16 6"></polyline>
-                            <polyline points="8 6 2 12 8 18"></polyline>
-                        </svg>
-                        <span class="sn-dev-label">Dev</span>
-                    </button>
+                    <div class="sn-view-toggle" id="viewToggle" title="Viewing DRAFT - your work in progress. Click 'Live' to see the published site.">
+                        <button class="sn-toggle-option active" data-mode="draft" onclick="setViewMode('draft')">Draft</button>
+                        <button class="sn-toggle-option" data-mode="live" onclick="setViewMode('live')">Live</button>
+                    </div>
                     <button class="sn-toolbar-btn" onclick="selectElement()" title="Select element (coming soon)" disabled>
                         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"></path>

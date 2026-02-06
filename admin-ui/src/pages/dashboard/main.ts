@@ -85,9 +85,9 @@ declare global {
         siOpenWindow: () => void;
         siToggleWindow: () => boolean;
         siRefreshMain: () => void;
-        refreshMainPreview: () => void;
+        refreshMainPreview: (event?: MouseEvent) => void;
         selectElement: () => void;
-        toggleDevMode: (event?: Event) => void;
+        setViewMode: (mode: 'draft' | 'live') => void;
     }
     function siOpenWindow(): void;
     function siToggleWindow(): boolean;
@@ -97,8 +97,14 @@ declare global {
 // Store injector instance for later use
 let injector: ServiceInjector | null = null;
 
-// Track dev mode state - default to dev mode for live editing experience
-let devMode = true;
+// Track current view mode - default to draft for live editing experience
+let currentMode: 'draft' | 'live' = 'draft';
+
+// Tooltip messages for the toggle
+const TOOLTIPS = {
+    draft: "Viewing DRAFT - your work in progress. Click 'Live' to see the published site.",
+    live: "Viewing LIVE - what visitors see. Click 'Draft' to continue editing."
+};
 
 /**
  * Initialize service-injector with configuration
@@ -110,7 +116,7 @@ function initServiceInjector(): void {
 
     injector = new ServiceInjector({
         wrapperMode: true,
-        wrapperUrl: '/sn_admin/dev/',  // Default to dev mode for live editing
+        wrapperUrl: '/sn_admin/dev/',  // Default to draft mode for live editing
         url: '/sn_admin/oc/',
         position: 'right',
         offset: '50%',
@@ -144,7 +150,9 @@ function refreshMainPreview(event?: MouseEvent): void {
     
     // Ctrl+Click or Cmd+Click: Full reset to root
     if (event?.ctrlKey || event?.metaKey) {
-        injector.navigateMain('/');
+        // Reset to root of current mode
+        const rootUrl = currentMode === 'draft' ? '/sn_admin/dev/' : '/';
+        injector.navigateMain(rootUrl);
         return;
     }
     
@@ -171,47 +179,66 @@ function selectElement(): void {
 }
 
 /**
- * Toggle between production (/) and dev server (/sn_admin/dev/) preview
+ * Set the view mode (draft or live)
  * 
- * Dev mode shows the Vite dev server with hot module replacement (HMR).
- * The dev server starts on-demand when first accessed and auto-shuts down
- * after 5 minutes of inactivity.
+ * Draft mode shows the Vite dev server with hot module replacement (HMR)
+ * running in the active worktree - your work in progress.
  * 
- * @param event - Optional event from onclick handler to get button reference
+ * Live mode shows the production site at / - what visitors see.
+ * 
+ * @param mode - 'draft' or 'live'
  */
-function toggleDevMode(event?: Event): void {
-    if (!injector) return;
+function setViewMode(mode: 'draft' | 'live'): void {
+    if (!injector || mode === currentMode) return;
     
-    // Get button from event or fallback to querySelector (service-injector injects DOM dynamically)
-    const btn = (event?.currentTarget as HTMLElement) || document.querySelector('.sn-dev-toggle');
+    currentMode = mode;
     
-    if (devMode) {
-        // Switch back to production
-        devMode = false;
-        injector.navigateMain('/');
-        btn?.classList.remove('active');
-    } else {
-        // Switch to dev mode
-        devMode = true;
-        // Navigate to dev server - it will start automatically if not running
+    // Navigate to appropriate URL
+    if (mode === 'draft') {
         injector.navigateMain('/sn_admin/dev/');
-        btn?.classList.add('active');
+    } else {
+        injector.navigateMain('/');
     }
+    
+    // Update toggle UI - need to wait for service-injector's DOM
+    updateToggleUI();
+}
+
+/**
+ * Update the toggle UI to reflect current mode
+ */
+function updateToggleUI(): void {
+    const toggle = document.querySelector('.sn-view-toggle');
+    const draftBtn = document.querySelector('.sn-toggle-option[data-mode="draft"]');
+    const liveBtn = document.querySelector('.sn-toggle-option[data-mode="live"]');
+    
+    if (!toggle || !draftBtn || !liveBtn) return;
+    
+    // Update active states
+    if (currentMode === 'draft') {
+        draftBtn.classList.add('active');
+        liveBtn.classList.remove('active');
+    } else {
+        draftBtn.classList.remove('active');
+        liveBtn.classList.add('active');
+    }
+    
+    // Update tooltip
+    toggle.setAttribute('title', TOOLTIPS[currentMode]);
 }
 
 // Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
     initServiceInjector();
     
-    // Set Dev button active state on load (matches default devMode = true)
+    // Set initial toggle state on load (matches default currentMode = 'draft')
     // Use setTimeout to ensure service-injector has injected the DOM
     setTimeout(() => {
-        const devBtn = document.querySelector('.sn-dev-toggle');
-        devBtn?.classList.add('active');
+        updateToggleUI();
     }, 100);
 });
 
 // Expose functions globally for toolbar buttons (onclick handlers in HTML templates)
 window.refreshMainPreview = refreshMainPreview;
 window.selectElement = selectElement;
-window.toggleDevMode = toggleDevMode;
+window.setViewMode = setViewMode;

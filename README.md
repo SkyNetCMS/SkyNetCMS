@@ -81,10 +81,33 @@ Visit http://localhost:8080/sn_admin/ to create your admin account.
 
 **How it works:**
 1. You chat with AI in the admin panel (`/sn_admin/oc/`)
-2. AI generates/modifies website code
-3. Changes are committed to the Git repository
-4. Build process updates the live site
+2. AI works in a draft worktree (isolated from live site)
+3. Preview your changes at `/sn_admin/dev/` (Dev mode toggle)
+4. When ready, tell the AI to "publish" your changes
 5. Visitors see updates at `/`
+
+## Draft/Publish Workflow
+
+SkyNetCMS protects your live site by separating draft work from production:
+
+| URL | Purpose |
+|-----|---------|
+| `/` | **Live site** - What visitors see (main branch) |
+| `/sn_admin/dev/` | **Preview** - See draft changes with live reload |
+| `/sn_admin/oc/` | **AI Chat** - Make changes via conversation |
+
+### Making Changes Safely
+
+1. **Start a session** - OpenCode will suggest creating a worktree (isolated branch)
+2. **Make changes** - Chat with AI to edit your site
+3. **Preview** - Click the "Dev" toggle to see changes in real-time
+4. **Publish** - Tell the AI "publish my changes" when ready
+
+### Rollback
+
+Changed your mind? The AI automatically creates restore points:
+- Say "rollback to the previous version" to undo a publish
+- All previous states are saved as git tags
 
 ## Development
 

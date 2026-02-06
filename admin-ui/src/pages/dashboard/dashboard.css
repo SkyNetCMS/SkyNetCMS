@@ -141,17 +141,44 @@ html, body {
     color: var(--sn-text-primary);
 }
 
-/* Dev Mode Toggle Button - Active State */
-.sn-dev-toggle.active {
-    background: var(--sn-accent);
-    border-color: var(--sn-accent);
-    color: var(--sn-bg-primary);
+/* ===== View Toggle (Draft/Live) ===== */
+.sn-view-toggle {
+    display: flex;
+    align-items: center;
+    background: var(--sn-bg-primary);
+    border: 1px solid var(--sn-border-hover);
+    border-radius: 20px;
+    padding: 3px;
+    gap: 2px;
 }
 
-.sn-dev-toggle.active:hover {
-    background: var(--sn-accent-hover);
-    border-color: var(--sn-accent-hover);
+.sn-toggle-option {
+    padding: 5px 12px;
+    border: none;
+    border-radius: 16px;
+    background: transparent;
+    color: var(--sn-text-secondary);
+    font-family: var(--sn-font-sans);
+    font-size: var(--sn-text-xs);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--sn-transition-fast);
+    user-select: none;
+}
+
+.sn-toggle-option:hover:not(.active) {
+    color: var(--sn-text-primary);
+    background: var(--sn-bg-tertiary);
+}
+
+.sn-toggle-option.active {
+    background: var(--sn-accent);
     color: var(--sn-bg-primary);
+    font-weight: 600;
+}
+
+.sn-toggle-option.active:hover {
+    background: var(--sn-accent-hover);
 }
 
 /* Close/Minimize Button */

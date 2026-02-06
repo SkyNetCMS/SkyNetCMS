@@ -316,10 +316,16 @@ The Minimum Viable Product delivers:
 Features explicitly deferred from MVP. This is the canonical list of future enhancements.
 
 ### 9.1 Git & Version Control
-- [ ] Branch-per-session workflow (merge to master = publish)
-- [ ] Rollback to previous versions via chat
+- [x] **Draft/Publish workflow with git worktrees** (implemented v1.1)
+  - OpenCode's built-in worktree UI for creating draft branches
+  - Dev preview at `/sn_admin/dev/` runs in active worktree
+  - Publish = merge to main + build
+- [x] **Rollback to previous versions via chat** (implemented v1.1)
+  - Auto-tagging on publish (`pre-publish-YYYYMMDD-HHMMSS`)
+  - AI can reset to any previous tag
 - [ ] Push to external Git (GitHub, GitLab)
 - [ ] Visual diff comparison in UI
+- [ ] "Publish" button in dashboard (currently AI-only)
 
 ### 9.2 User Interface Enhancements
 - [ ] File browser in admin panel
@@ -399,6 +405,7 @@ Features explicitly deferred from MVP. This is the canonical list of future enha
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | 2026-01-09 | AI Assistant | Initial version based on requirements gathering |
+| 1.1 | 2026-02-06 | AI Assistant | Added draft/publish workflow with git worktrees |
 
 ---
 

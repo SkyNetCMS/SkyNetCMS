@@ -90,7 +90,13 @@ cd /data/website
 # Start OpenCode web server in background
 # Port 3000, localhost only (nginx will proxy to it)
 # --base-path allows OpenCode to work behind reverse proxy at /sn_admin/oc/
-OPENCODE_TEST_HOME=/data/website opencode web --port 3000 --hostname 127.0.0.1 --base-path /sn_admin/oc &
+#
+# XDG_DATA_HOME: Set to /data/opencode so worktrees are stored in a location
+# accessible to both OpenCode (root) and nginx (www-data) for dev server preview.
+# Default would be ~/.local/share which is /root/.local/share - not readable by www-data.
+mkdir -p /data/opencode
+chmod 755 /data/opencode
+XDG_DATA_HOME=/data OPENCODE_TEST_HOME=/data/website opencode web --port 3000 --hostname 127.0.0.1 --base-path /sn_admin/oc &
 OPENCODE_PID=$!
 echo "[INFO] OpenCode started with PID: $OPENCODE_PID"
 

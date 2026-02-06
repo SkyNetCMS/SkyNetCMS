@@ -3,17 +3,20 @@
 -- ============================================
 -- Manages on-demand Vite dev server lifecycle:
 -- - Starts dev server when /sn_admin/dev/ is accessed
+-- - Supports dynamic worktree directories
 -- - Tracks activity for idle shutdown
 -- - Auto-stops after 5 minutes of inactivity
+-- - Restarts if worktree changes
 
 local _M = {}
 
 -- Configuration
 _M.DEV_PORT = 5173
 _M.PID_FILE = "/tmp/vite-dev.pid"
+_M.DIR_FILE = "/tmp/vite-dev.dir"  -- Track which directory server is running in
 _M.IDLE_TIMEOUT = 300  -- 5 minutes in seconds
 _M.STARTUP_TIMEOUT = 30  -- Max seconds to wait for server to start
-_M.WEBSITE_DIR = "/data/website"
+_M.WEBSITE_DIR = "/data/website"  -- Fallback directory
 
 -- Get shared dictionary for state management
 local function get_dict()
@@ -69,6 +72,32 @@ local function remove_pid()
     os.remove(_M.PID_FILE)
 end
 
+-- Read current directory from file
+local function read_current_dir()
+    local file = io.open(_M.DIR_FILE, "r")
+    if not file then return nil end
+    local dir = file:read("*l")
+    file:close()
+    return dir
+end
+
+-- Write current directory to file
+local function write_current_dir(dir)
+    local file = io.open(_M.DIR_FILE, "w")
+    if not file then
+        ngx.log(ngx.ERR, "devserver: Failed to write DIR file")
+        return false
+    end
+    file:write(dir)
+    file:close()
+    return true
+end
+
+-- Remove directory file
+local function remove_dir_file()
+    os.remove(_M.DIR_FILE)
+end
+
 -- Get current dev server status
 -- Returns: "stopped", "starting", "running"
 function _M.get_status()
@@ -88,6 +117,7 @@ function _M.get_status()
     -- Check if process is actually running
     if not is_process_running(pid) then
         remove_pid()
+        remove_dir_file()
         dict:set("status", "stopped")
         return "stopped"
     end
@@ -102,13 +132,42 @@ function _M.get_status()
     return "starting"
 end
 
--- Start the dev server
+-- Get the directory the dev server is currently running in
+function _M.get_current_directory()
+    return read_current_dir()
+end
+
+-- Check if we need to restart the server for a different directory
+function _M.needs_restart(target_dir)
+    local status = _M.get_status()
+    if status == "stopped" then
+        return false  -- Not running, no restart needed
+    end
+    
+    local current_dir = read_current_dir()
+    if not current_dir then
+        return false  -- No record, assume OK
+    end
+    
+    return current_dir ~= target_dir
+end
+
+-- Start the dev server in a specific directory
 -- Returns: true if started (or already running), false on error
-function _M.start_server()
+function _M.start_server(directory)
+    directory = directory or _M.WEBSITE_DIR
+    
     local status = _M.get_status()
     
+    -- Check if we need to restart for a different directory
+    if status == "running" and _M.needs_restart(directory) then
+        ngx.log(ngx.INFO, "devserver: Restarting for different directory: ", directory)
+        _M.stop_server()
+        status = "stopped"
+    end
+    
     if status == "running" then
-        ngx.log(ngx.INFO, "devserver: Already running")
+        ngx.log(ngx.INFO, "devserver: Already running in ", read_current_dir() or "unknown")
         return true
     end
     
@@ -127,8 +186,9 @@ function _M.start_server()
     -- The nginx worker runs as www-data, but we need write access to node_modules
     -- so we use sudo to run the start-vite.sh wrapper as root
     local cmd = string.format(
-        "nohup sudo /scripts/start-vite.sh %d /sn_admin/dev/ > /tmp/vite-dev.log 2>&1 & echo $!",
-        _M.DEV_PORT
+        "nohup sudo /scripts/start-vite.sh %d /sn_admin/dev/ %s > /tmp/vite-dev.log 2>&1 & echo $!",
+        _M.DEV_PORT,
+        directory
     )
     
     ngx.log(ngx.INFO, "devserver: Starting with command: ", cmd)
@@ -150,8 +210,9 @@ function _M.start_server()
         return false
     end
     
-    ngx.log(ngx.INFO, "devserver: Started with PID ", pid)
+    ngx.log(ngx.INFO, "devserver: Started with PID ", pid, " in directory ", directory)
     write_pid(pid)
+    write_current_dir(directory)
     
     -- Update activity timestamp
     _M.update_activity()
@@ -178,6 +239,7 @@ function _M.wait_for_ready(timeout)
         if pid and not is_process_running(pid) then
             ngx.log(ngx.ERR, "devserver: Process died during startup")
             remove_pid()
+            remove_dir_file()
             local dict = get_dict()
             if dict then dict:set("status", "stopped") end
             return false
@@ -218,6 +280,7 @@ function _M.stop_server()
     if not is_process_running(pid) then
         ngx.log(ngx.INFO, "devserver: Process already stopped")
         remove_pid()
+        remove_dir_file()
         return true
     end
     
@@ -236,6 +299,7 @@ function _M.stop_server()
     end
     
     remove_pid()
+    remove_dir_file()
     
     local dict = get_dict()
     if dict then

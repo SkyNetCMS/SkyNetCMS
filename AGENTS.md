@@ -5,17 +5,34 @@
 ## Architecture Overview
 
 Single Docker container with OpenResty (Nginx + Lua) routing to:
-- `/` → Static site from `/data/website/dist/`
+- `/` → Static site from `/data/website/dist/` (main branch = LIVE)
 - `/sn_admin/` → Admin Dashboard (htpasswd auth)
 - `/sn_admin/oc/` → OpenCode Web UI (htpasswd auth)
+- `/sn_admin/dev/` → Vite dev server preview (draft worktree)
 
 OpenCode server runs on port 3000, working directory `/data/website/` (Git repo).
+
+## Draft/Publish Workflow
+
+SkyNetCMS uses git worktrees to separate draft changes from the live site:
+
+- **Main worktree** (`/data/website/`): The `main` branch, serves live site at `/`
+- **Draft worktrees** (`/data/opencode/worktree/<project-id>/`): OpenCode creates these for isolated editing
+- **Dev preview** (`/sn_admin/dev/`): Vite dev server runs in the active draft worktree
+
+### Key Points
+
+- OpenCode's UI has built-in worktree management (create, switch, delete, reset)
+- The dev server auto-detects the most recently modified worktree
+- Override via query param: `/sn_admin/dev/?worktree=brave-falcon`
+- Publish = merge draft branch to main + `npm run build` in main worktree
+- Auto-tagging on publish enables rollback (`pre-publish-YYYYMMDD-HHMMSS`)
 
 ## Key Directories
 
 ```
 docker/           # Dockerfile, scripts (init.sh)
-nginx/            # nginx.conf, conf.d/, lua/ (auth logic)
+nginx/            # nginx.conf, conf.d/, lua/ (auth logic, worktree detection)
 opencode/config/  # → ~/.config/opencode/ in container
 templates/default/ # Initial site template → /data/website/
 ```
