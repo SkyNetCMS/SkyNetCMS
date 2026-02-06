@@ -7,9 +7,10 @@ Static site built with Vite, served by nginx.
 - `src/` - source files (edit here)
 - `dist/` - build output (never edit)
 
-## Workflow
+## Workflow Rules
 
-After every change: `npm run build` then commit with context.
+* After every change: `npm run build` then commit with context.
+* Remeber to update vite config when required (ex. new page added)
 
 ## Approach
 

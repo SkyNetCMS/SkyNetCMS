@@ -92,8 +92,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     apache2-utils \
     ripgrep \
+    sudo \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# Allow www-data to run start-vite.sh as root without password
+# This is needed because nginx worker (www-data) spawns vite dev server
+# which needs write access to /data/website/node_modules
+RUN echo "www-data ALL=(root) NOPASSWD: /scripts/start-vite.sh" > /etc/sudoers.d/vite-dev \
+    && chmod 440 /etc/sudoers.d/vite-dev
 
 # ----------------------------------------
 # Copy OpenCode binary from builder stage

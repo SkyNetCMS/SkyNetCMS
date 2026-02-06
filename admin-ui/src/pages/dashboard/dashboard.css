@@ -141,6 +141,19 @@ html, body {
     color: var(--sn-text-primary);
 }
 
+/* Dev Mode Toggle Button - Active State */
+.sn-dev-toggle.active {
+    background: var(--sn-accent);
+    border-color: var(--sn-accent);
+    color: var(--sn-bg-primary);
+}
+
+.sn-dev-toggle.active:hover {
+    background: var(--sn-accent-hover);
+    border-color: var(--sn-accent-hover);
+    color: var(--sn-bg-primary);
+}
+
 /* Close/Minimize Button */
 .sn-toolbar-close {
     display: flex;

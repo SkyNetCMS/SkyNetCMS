@@ -87,6 +87,7 @@ declare global {
         siRefreshMain: () => void;
         refreshMainPreview: () => void;
         selectElement: () => void;
+        toggleDevMode: (event?: Event) => void;
     }
     function siOpenWindow(): void;
     function siToggleWindow(): boolean;
@@ -95,6 +96,9 @@ declare global {
 
 // Store injector instance for later use
 let injector: ServiceInjector | null = null;
+
+// Track dev mode state - default to dev mode for live editing experience
+let devMode = true;
 
 /**
  * Initialize service-injector with configuration
@@ -106,7 +110,7 @@ function initServiceInjector(): void {
 
     injector = new ServiceInjector({
         wrapperMode: true,
-        wrapperUrl: '/',
+        wrapperUrl: '/sn_admin/dev/',  // Default to dev mode for live editing
         url: '/sn_admin/oc/',
         position: 'right',
         offset: '50%',
@@ -166,11 +170,48 @@ function selectElement(): void {
     console.log('Element selector - coming in future phase');
 }
 
+/**
+ * Toggle between production (/) and dev server (/sn_admin/dev/) preview
+ * 
+ * Dev mode shows the Vite dev server with hot module replacement (HMR).
+ * The dev server starts on-demand when first accessed and auto-shuts down
+ * after 5 minutes of inactivity.
+ * 
+ * @param event - Optional event from onclick handler to get button reference
+ */
+function toggleDevMode(event?: Event): void {
+    if (!injector) return;
+    
+    // Get button from event or fallback to querySelector (service-injector injects DOM dynamically)
+    const btn = (event?.currentTarget as HTMLElement) || document.querySelector('.sn-dev-toggle');
+    
+    if (devMode) {
+        // Switch back to production
+        devMode = false;
+        injector.navigateMain('/');
+        btn?.classList.remove('active');
+    } else {
+        // Switch to dev mode
+        devMode = true;
+        // Navigate to dev server - it will start automatically if not running
+        injector.navigateMain('/sn_admin/dev/');
+        btn?.classList.add('active');
+    }
+}
+
 // Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
     initServiceInjector();
+    
+    // Set Dev button active state on load (matches default devMode = true)
+    // Use setTimeout to ensure service-injector has injected the DOM
+    setTimeout(() => {
+        const devBtn = document.querySelector('.sn-dev-toggle');
+        devBtn?.classList.add('active');
+    }, 100);
 });
 
 // Expose functions globally for toolbar buttons (onclick handlers in HTML templates)
 window.refreshMainPreview = refreshMainPreview;
 window.selectElement = selectElement;
+window.toggleDevMode = toggleDevMode;
