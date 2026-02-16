@@ -19,9 +19,6 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN curl -fsSL https://bun.sh/install | bash -s "bun-v1.3.5"
-ENV PATH="/root/.bun/bin:${PATH}"
-
 # Copy OpenCode from git submodule (pinned to specific commit)
 # This fork includes:
 #   - --base-path support for reverse proxy deployment
@@ -35,6 +32,14 @@ ENV PATH="/root/.bun/bin:${PATH}"
 #
 # To update OpenCode: git submodule update --remote opencode-src && git add opencode-src && git commit
 COPY opencode-src/ /tmp/opencode/
+
+# Install Bun version specified in opencode's packageManager field
+# This ensures we always use the exact version opencode expects
+ENV PATH="/root/.bun/bin:${PATH}"
+RUN BUN_VERSION=$(grep -o '"packageManager": "bun@[^"]*"' /tmp/opencode/package.json | grep -o '[0-9.]*') \
+    && echo "Installing Bun v${BUN_VERSION} (from opencode packageManager)" \
+    && curl -fsSL https://bun.sh/install | bash -s "bun-v${BUN_VERSION}"
+
 RUN cd /tmp/opencode \
     && bun install --frozen-lockfile \
     && cd packages/opencode \
