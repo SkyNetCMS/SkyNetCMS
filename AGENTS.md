@@ -49,6 +49,7 @@ templates/default/ # Initial site template → /data/website/
 - **Files**: lowercase-kebab-case (`init.sh`)
 - **Docs**: PascalCase (`README.md`)
 - **Commits**: Present tense ("Add nginx configuration")
+- **Before committing**: Verify `git status` shows only expected changes. If there are unrelated uncommitted changes, flag them to the user before proceeding.
 
 ## Nginx Location Order (Critical)
 
