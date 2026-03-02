@@ -1,60 +1,16 @@
 # ============================================
-# SkyNetCMS Dockerfile (Multi-stage Build)
+# SkyNetCMS Dockerfile
 # ============================================
-# Stage 1: Build OpenCode binary
-# Stage 2: Runtime image with OpenResty + Node.js
+# Uses pre-built OpenCode binary from ghcr.io/skynetcms/opencode
+# Runtime image: OpenResty + Node.js
 # ============================================
-
-# ============================================
-# STAGE 1: OpenCode Builder
-# ============================================
-FROM node:24-bookworm-slim AS opencode-builder
-
-# Install build dependencies
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        curl \
-        unzip \
-        ca-certificates \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy OpenCode from git submodule (pinned to specific commit)
-# This fork includes:
-#   - --base-path support for reverse proxy deployment
-#   - Embedded frontend (no runtime dependency on app.opencode.ai)
-#   - All necessary patches for SkyNetCMS integration
-# Repository: https://github.com/SkyNetCMS/opencode (branch: skynetcms)
-#
-# Build targets:
-#   - arm64: standard target (modern ARM servers support all instructions)
-#   - amd64: baseline target for compatibility with older CPUs (no AVX2)
-#
-# To update OpenCode: git submodule update --remote opencode-src && git add opencode-src && git commit
-COPY opencode-src/ /tmp/opencode/
-
-# Install Bun version specified in opencode's packageManager field
-# This ensures we always use the exact version opencode expects
-ENV PATH="/root/.bun/bin:${PATH}"
-RUN BUN_VERSION=$(grep -o '"packageManager": "bun@[^"]*"' /tmp/opencode/package.json | grep -o '[0-9.]*') \
-    && echo "Installing Bun v${BUN_VERSION} (from opencode packageManager)" \
-    && curl -fsSL https://bun.sh/install | bash -s "bun-v${BUN_VERSION}"
-
-RUN cd /tmp/opencode \
-    && bun install --frozen-lockfile \
-    && cd packages/opencode \
-    && ARCH=$(uname -m) \
-    && if [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then \
-         OPENCODE_CHANNEL=skynetcms bun run build --single && \
-         cp dist/opencode-linux-arm64/bin/opencode /usr/local/bin/opencode; \
-       else \
-         OPENCODE_CHANNEL=skynetcms bun run build --single --baseline && \
-         cp dist/opencode-linux-x64-baseline/bin/opencode /usr/local/bin/opencode; \
-       fi \
-    && chmod +x /usr/local/bin/opencode
+# OpenCode version - override with: docker build --build-arg OPENCODE_VERSION=1.2.10-sn
+# Available tags: https://github.com/SkyNetCMS/opencode/pkgs/container/opencode/versions
+ARG OPENCODE_VERSION=latest
+FROM ghcr.io/skynetcms/opencode:${OPENCODE_VERSION} AS opencode
 
 # ============================================
-# STAGE 2: Runtime Image
+# Runtime Image
 # ============================================
 FROM node:24-bookworm-slim
 
@@ -90,7 +46,6 @@ RUN wget -O - https://openresty.org/package/pubkey.gpg | gpg --dearmor -o /etc/a
 
 # ----------------------------------------
 # Install runtime dependencies
-# (No Bun needed - only used for building OpenCode)
 # ----------------------------------------
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
@@ -108,9 +63,9 @@ RUN echo "www-data ALL=(root) NOPASSWD: /scripts/start-vite.sh" > /etc/sudoers.d
     && chmod 440 /etc/sudoers.d/vite-dev
 
 # ----------------------------------------
-# Copy OpenCode binary from builder stage
+# Copy OpenCode binary from pre-built image
 # ----------------------------------------
-COPY --from=opencode-builder /usr/local/bin/opencode /usr/local/bin/opencode
+COPY --from=opencode /usr/local/bin/opencode /usr/local/bin/opencode
 
 # ----------------------------------------
 # Verify installations

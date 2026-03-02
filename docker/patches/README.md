@@ -4,10 +4,12 @@ This directory previously contained patches applied to OpenCode during the Docke
 
 ## Current Status: No Patches Required
 
-As of January 2026, SkyNetCMS uses the **SkyNetCMS/opencode** fork which includes all necessary modifications:
+SkyNetCMS uses a pre-built OpenCode binary from the **SkyNetCMS/opencode** fork's Docker image:
 
+- **Image:** `ghcr.io/skynetcms/opencode`
 - **Repository:** https://github.com/SkyNetCMS/opencode
 - **Branch:** `skynetcms`
+- **Available tags:** https://github.com/SkyNetCMS/opencode/pkgs/container/opencode/versions
 
 ### Features Included in the Fork
 
@@ -28,22 +30,22 @@ The SkyNetCMS fork addresses both issues by:
 
 ### Build Process
 
-The Dockerfile now simply clones and builds from the fork:
+SkyNetCMS no longer builds OpenCode from source. Instead, the Dockerfile pulls a pre-built
+binary from the fork's published Docker image:
 
 ```dockerfile
-RUN git clone --depth 1 --branch skynetcms \
-        https://github.com/SkyNetCMS/opencode.git /tmp/opencode \
-    && cd /tmp/opencode \
-    && bun install --frozen-lockfile \
-    && cd packages/opencode \
-    && bun run build --single \
-    ...
+ARG OPENCODE_VERSION=latest
+FROM ghcr.io/skynetcms/opencode:${OPENCODE_VERSION} AS opencode
+# ...
+COPY --from=opencode /usr/local/bin/opencode /usr/local/bin/opencode
 ```
 
-The build script automatically:
-1. Builds `packages/app` (frontend) → `packages/app/dist/`
-2. Generates `app-manifest.ts` with Bun file imports
-3. Compiles `packages/opencode` with embedded assets
+To pin a specific version:
+```bash
+docker build --build-arg OPENCODE_VERSION=1.2.10-sn -t skynetcms -f docker/Dockerfile .
+```
+
+The opencode fork's CI builds and publishes the Docker image automatically.
 
 ### Future: Returning to Upstream
 
@@ -66,14 +68,3 @@ The following patches were previously maintained here but are now integrated int
 | Patch | Issue | Resolution |
 |-------|-------|------------|
 | `base-path.ts` | Regex mismatch + hardcoded `/assets/` paths | Integrated into fork |
-
----
-
-## Adding Future Patches
-
-If new patches are needed:
-
-1. Make changes in the SkyNetCMS/opencode fork (preferred)
-2. Or, if temporary: add patch file here and update Dockerfile to apply it
-
-The fork approach is preferred as it keeps all OpenCode modifications in one place.
