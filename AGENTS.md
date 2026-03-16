@@ -78,7 +78,7 @@ Build: `docker exec <container> npm run build` (runs in `/data/website`)
 
 ## References
 
-- Detailed docs: `README.md`, `PRD_v1.md`, `PLAN_v1.md`
+- Detailed docs: `README.md`, `PRD.md`, `PLAN.md`
 - Environment variables: See `README.md`
 - Testing/troubleshooting: See `README.md`
 

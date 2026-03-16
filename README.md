@@ -145,8 +145,8 @@ docker stop skynetcms && docker rm skynetcms
 
 ## Documentation
 
-- [Product Requirements (PRD)](PRD_v1.md)
-- [Implementation Plan](PLAN_v1.md)
+- [Product Requirements (PRD)](PRD.md)
+- [Implementation Plan](PLAN.md)
 - [Style Guide](STYLE_GUIDE.md)
 
 ## License
