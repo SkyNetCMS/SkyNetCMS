@@ -54,6 +54,31 @@
 - [x] README documentation with quick start guide, architecture diagram, environment reference
 - [x] Code cleanup (removed debug logging, consistent formatting, code comments)
 
+## Phase 8: Dev Server Resilience
+
+> Discovered in production: Vite dev server fails on resource-constrained hosts due to
+> exhausted inotify instances, and nginx worker (www-data) cannot manage root-owned Vite processes.
+
+- [ ] Add inotify `max_user_instances` check and best-effort raise in `docker/scripts/init.sh`
+  - Read current value from `/proc/sys/fs/inotify/max_user_instances`
+  - If below 512, attempt to write 8192 (requires `--privileged` or `--cap-add SYS_ADMIN`)
+  - If write fails, print `[WARN]` with host-level sysctl fix command
+- [ ] Add inotify pre-check in `docker/scripts/start-vite.sh`
+  - Before starting Vite, compare in-use inotify instances vs max
+  - Exit with actionable error message instead of letting Node.js crash with raw EMFILE stack trace
+- [ ] Fix `is_process_running()` in `nginx/lua/devserver.lua`
+  - Replace `kill -0` with `/proc/<pid>/status` file check
+  - `kill -0` fails with EPERM when www-data checks root-owned process, returning false positive "not running"
+  - This causes wait_for_ready() to exit in ~1s instead of waiting 30s, masking real startup errors
+- [ ] Fix `stop_server()` in `nginx/lua/devserver.lua`
+  - www-data cannot send signals to root-owned Vite process
+  - Create `docker/scripts/stop-vite.sh` wrapper (accepts PID and signal)
+  - Add `stop-vite.sh` to sudoers in `docker/Dockerfile` alongside `start-vite.sh`
+  - Update `stop_server()` to use `sudo /scripts/stop-vite.sh` instead of direct `kill`
+- [ ] Add troubleshooting section to `README.md`
+  - Document EMFILE / inotify issue with host-level sysctl fix
+  - Document persistent fix via `/etc/sysctl.d/99-inotify.conf`
+
 ## Future
 
 > Items outside current scope. See PRD.md "Future Phase Backlog" for the full list.
