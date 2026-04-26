@@ -4,9 +4,9 @@
 # Uses pre-built OpenCode binary from ghcr.io/skynetcms/opencode
 # Runtime image: OpenResty + Node.js
 # ============================================
-# OpenCode version - override with: docker build --build-arg OPENCODE_VERSION=1.2.10-sn
+# OpenCode version - override with: docker build --build-arg OPENCODE_VERSION=1.14.23-sn
 # Available tags: https://github.com/SkyNetCMS/opencode/pkgs/container/opencode/versions
-ARG OPENCODE_VERSION=1.2.20-sn
+ARG OPENCODE_VERSION=1.14.23-sn
 FROM ghcr.io/skynetcms/opencode:${OPENCODE_VERSION} AS opencode
 
 # ============================================

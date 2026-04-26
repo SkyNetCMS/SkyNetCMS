@@ -41,7 +41,7 @@ templates/default/ # Initial site template → /data/website/
 
 - **Nginx worker user**: `www-data` (not `nobody` - Docker Desktop macOS has I/O issues with UID 65534)
 - **Auth files**: `/data/auth/` (www-data owned) - separate from `/data/website/` (root owned)
-- **OpenCode binary**: Pre-built from `ghcr.io/skynetcms/opencode` Docker image (SkyNetCMS fork with embedded web app, `--base-path` support). Version controlled via `OPENCODE_VERSION` build arg in `docker/Dockerfile` (defaults to `latest`).
+- **OpenCode binary**: Pre-built from `ghcr.io/skynetcms/opencode` Docker image (SkyNetCMS fork with embedded web app, `--base-path` support). Version controlled via `OPENCODE_VERSION` build arg in `docker/Dockerfile` (defaults to `1.14.23-sn`).
 
 ## Code Conventions
 
