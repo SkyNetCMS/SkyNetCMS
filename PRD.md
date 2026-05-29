@@ -53,6 +53,7 @@ The system wraps OpenCode (a multi-LLM AI assistant) in a Docker container with 
 | Build error reporting | P1 | Build errors surfaced to user via AI chat |
 | AI page/URL awareness | P1 | AI knows which page user is viewing in preview without manual selection (MCP tool) |
 | Visual element selection | P1 | Click any preview element to provide context to AI for precise edits (service-injector) |
+| On-demand OpenCode lifecycle | P1 | OpenCode AI backend starts lazily on first admin access and auto-stops when idle (session-status–aware) to save resources |
 
 ## User Stories
 
@@ -128,12 +129,18 @@ As a **site owner**, I want to click on any element in my website preview so tha
 - FR-061: Hovering in selection mode shall highlight selectable elements in the preview iframe
 - FR-062: Selected element context (tag, CSS selector, text content, position) shall be passed to AI
 - FR-063: Element selection shall work for standard HTML/CSS/JS sites
+- FR-070: OpenCode backend shall start on-demand when `/sn_admin/oc/` is first accessed, not eagerly at container boot
+- FR-071: First access shall block up to 30 seconds waiting for OpenCode readiness (`/global/health`)
+- FR-072: Activity shall be tracked on any HTTP request or active WebSocket connection to `/sn_admin/oc/`
+- FR-073: After 5 minutes of inactivity, the system shall query OpenCode `/session/status`; OpenCode shall be stopped only if no session is actively running, otherwise the activity timer resets
+- FR-074: OpenCode process lifecycle shall use a sudo wrapper script and a `/proc/<pid>/status` liveness check (the www-data nginx worker cannot signal the root-owned OpenCode process directly)
 
 ## Non-functional Requirements
 
 **Performance**:
 - Static page load time: < 2 seconds
-- OpenCode UI load time: < 5 seconds
+- OpenCode UI load time (warm): < 5 seconds
+- OpenCode UI load time (cold start, on-demand): up to 30 seconds (first access blocks until ready)
 - Build process completion: < 30 seconds for simple sites
 
 **Security**:
@@ -384,3 +391,4 @@ Features explicitly deferred from MVP. This is the canonical list of future enha
 | 1.2 | 2026-03-15 | AI Assistant | Restructured to /prd command format; added Objectives, User Stories, Success Metrics, Timeline sections |
 | 1.3 | 2026-04-27 | AI Assistant | Added AI page/URL awareness feature (P1): MCP-based current page context for end-user AI |
 | 1.4 | 2026-04-28 | AI Assistant | Promoted visual element selection from Future to main scope (P1): FR-060 through FR-063 |
+| 1.5 | 2026-05-29 | AI Assistant | Added on-demand OpenCode lifecycle (P1): lazy start, session-status–aware idle shutdown; FR-070 through FR-074 |

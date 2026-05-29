@@ -54,10 +54,40 @@
 - [x] README documentation with quick start guide, architecture diagram, environment reference
 - [x] Code cleanup (removed debug logging, consistent formatting, code comments)
 
-## Phase 8: Dev Server Resilience
+## Phase 8: On-Demand OpenCode Lifecycle
+
+> FR-070 through FR-074: OpenCode currently starts eagerly at container boot and runs forever.
+> Mirror the Vite dev server's on-demand model — lazy start on first `/sn_admin/oc/` access,
+> auto-stop when idle — but query OpenCode's `/session/status` API before stopping so an
+> in-progress AI generation is never killed. Shares process-management fixes with Phase 9.
+
+- [ ] Extract shared lifecycle base module `nginx/lua/serverlifecycle.lua`
+  - Common logic: PID/dir file management, shared-dict status tracking, start via sudo wrapper, `wait_for_ready`, `/proc/<pid>/status` liveness check, generic idle check with a pluggable "is-busy" predicate
+  - Parameterized per service (port, PID file, dir file, shared dict name, start command, readiness check)
+- [ ] Refactor `nginx/lua/devserver.lua` to use the shared base module
+  - Preserve current Vite behavior (port 5173, `dev_server` dict, 5-min idle, worktree restart)
+- [ ] Create `nginx/lua/ocserver.lua` using the shared base
+  - Port 3000, `oc_server` shared dict, 5-min idle timeout
+  - Implement `is_session_active()` — query `http://127.0.0.1:3000/sn_admin/oc/session/status`, return true if any session is running/busy
+  - Idle check stops OpenCode only when no session is active; otherwise reset the activity timer
+- [ ] Create `docker/scripts/start-opencode.sh` wrapper
+  - Move the `XDG_DATA_HOME=/data OPENCODE_TEST_HOME=/data/website opencode web --port 3000 --hostname 127.0.0.1 --base-path /sn_admin/oc` invocation out of `init.sh`
+- [ ] Create `docker/scripts/stop-opencode.sh` wrapper (accepts PID and signal)
+- [ ] Add `start-opencode.sh` and `stop-opencode.sh` to sudoers in `docker/Dockerfile`
+- [ ] Remove eager OpenCode startup block from `docker/scripts/init.sh` (~lines 84-120, including the 30s readiness wait loop)
+- [ ] Add `access_by_lua_block` to the `/sn_admin/oc/` location in `nginx/conf.d/default.conf`
+  - Start OpenCode if not running, wait up to 30s for readiness, update activity timestamp
+  - Keep WebSocket proxying and existing headers/timeouts intact
+- [ ] Add `lua_shared_dict oc_server 64k;` and an OpenCode idle-check timer to `nginx/nginx.conf` `init_worker_by_lua_block`
+- [ ] Test end-to-end: cold container → first `/sn_admin/oc/` hit starts OpenCode → AI works → idle 5 min with no active session stops it → idle during an active generation does NOT stop it
+
+## Phase 9: Dev Server Resilience
 
 > Discovered in production: Vite dev server fails on resource-constrained hosts due to
 > exhausted inotify instances, and nginx worker (www-data) cannot manage root-owned Vite processes.
+>
+> Note: The `/proc`-based liveness check and sudo stop-wrapper below are shared with Phase 8's
+> `serverlifecycle.lua`. If Phase 8 lands first, implement these fixes in the shared module.
 
 - [ ] Add inotify `max_user_instances` check and best-effort raise in `docker/scripts/init.sh`
   - Read current value from `/proc/sys/fs/inotify/max_user_instances`
@@ -79,7 +109,7 @@
   - Document EMFILE / inotify issue with host-level sysctl fix
   - Document persistent fix via `/etc/sysctl.d/99-inotify.conf`
 
-## Phase 9: AI Page/URL Awareness
+## Phase 10: AI Page/URL Awareness
 
 > FR-050 through FR-053: AI knows which page the user is viewing in the
 > preview iframe, without requiring manual selection.
@@ -100,7 +130,7 @@
   - Document the `get_current_page` tool and when to use it
 - [ ] Test end-to-end: navigate in preview → AI queries current page → edits correct file
 
-## Phase 10: Build Error Reporting
+## Phase 11: Build Error Reporting
 
 > P1: Build errors surfaced to user via AI chat (FR-032).
 
@@ -112,7 +142,7 @@
 - [ ] User-friendly error formatting in AI responses
   - AI should summarize the error, suggest fixes, and offer to retry
 
-## Phase 11: Image & Asset Handling
+## Phase 12: Image & Asset Handling
 
 > P1: User-provided image uploads through AI conversation (FR-025).
 
@@ -123,10 +153,10 @@
 - [ ] Add image optimization guidance to AI context
   - Responsive images, lazy loading, alt text best practices
 
-## Phase 12: Visual Element Selection
+## Phase 13: Visual Element Selection
 
 > FR-060 through FR-063: Click any element in the preview to give AI precise
-> editing context. Depends on Phase 9 (AI Page/URL Awareness).
+> editing context. Depends on Phase 10 (AI Page/URL Awareness).
 
 - [ ] Enable the existing toolbar "Select" button (remove `disabled` attribute)
   - `admin-ui/src/pages/dashboard/index.html` line 84
