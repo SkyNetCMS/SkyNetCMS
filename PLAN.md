@@ -79,6 +79,72 @@
   - Document EMFILE / inotify issue with host-level sysctl fix
   - Document persistent fix via `/etc/sysctl.d/99-inotify.conf`
 
+## Phase 9: AI Page/URL Awareness
+
+> FR-050 through FR-053: AI knows which page the user is viewing in the
+> preview iframe, without requiring manual selection.
+
+- [ ] Dashboard JS: track current preview iframe URL, page title, and view mode (draft/live)
+  - Listen for iframe `load` events and navigation changes
+  - Store state in a known location accessible outside the browser (e.g., write to `/data/website/.opencode/current-page.json` via API endpoint)
+- [ ] Create nginx endpoint to receive and serve page context
+  - `POST /sn_admin/page-context` — dashboard JS writes current state
+  - `GET /sn_admin/page-context` — MCP tool reads current state
+  - Store in nginx shared dict or temp file (Lua)
+- [ ] Create MCP tool for page context query
+  - Tool name: `get_current_page` (returns URL path, query string, page title, draft/live mode)
+  - Register via project-level OpenCode config (`templates/default/opencode.json`)
+  - MCP server reads from the page-context endpoint
+- [ ] Update end-user AGENTS.md (`templates/default/AGENTS.md`) with page awareness instructions
+  - Instruct AI to check page context when user requests page-specific edits
+  - Document the `get_current_page` tool and when to use it
+- [ ] Test end-to-end: navigate in preview → AI queries current page → edits correct file
+
+## Phase 10: Build Error Reporting
+
+> P1: Build errors surfaced to user via AI chat (FR-032).
+
+- [ ] Capture build stdout/stderr in a structured log file (`/data/website/.opencode/build-log.json`)
+  - Include exit code, timestamp, truncated output
+- [ ] Surface build errors to AI context
+  - MCP tool or file-based approach so AI can read last build result
+  - AI AGENTS.md instructions to check build status after triggering builds
+- [ ] User-friendly error formatting in AI responses
+  - AI should summarize the error, suggest fixes, and offer to retry
+
+## Phase 11: Image & Asset Handling
+
+> P1: User-provided image uploads through AI conversation (FR-025).
+
+- [ ] Define asset storage convention (`/data/website/src/assets/` or `public/`)
+  - Document in end-user AGENTS.md
+- [ ] Ensure AI can reference and place user-provided images in site source
+  - Test with common image formats (PNG, JPG, SVG, WebP)
+- [ ] Add image optimization guidance to AI context
+  - Responsive images, lazy loading, alt text best practices
+
+## Phase 12: Visual Element Selection
+
+> FR-060 through FR-063: Click any element in the preview to give AI precise
+> editing context. Depends on Phase 9 (AI Page/URL Awareness).
+
+- [ ] Enable the existing toolbar "Select" button (remove `disabled` attribute)
+  - `admin-ui/src/pages/dashboard/index.html` line 84
+  - Update tooltip from "coming soon" to active description
+- [ ] Implement selection mode in dashboard JS
+  - Inject highlight overlay into preview iframe (CSS injection via `contentDocument`)
+  - Listen for hover events to highlight elements
+  - Listen for click to capture selected element
+- [ ] Extract element context on selection
+  - Capture: tag name, CSS selector path, text content, bounding box, computed styles
+  - Write to page-context endpoint (extend `/sn_admin/page-context` from Phase 9)
+- [ ] Extend MCP tool to include element context
+  - Extend `get_current_page` or add `get_selected_element` tool
+  - Return element details alongside page URL context
+- [ ] Update end-user AGENTS.md with element selection instructions
+  - Instruct AI to use element context for precise edits
+- [ ] Test end-to-end: select element → AI identifies correct file/line → applies targeted edit
+
 ## Future
 
 > Items outside current scope. See PRD.md "Future Phase Backlog" for the full list.

@@ -51,6 +51,8 @@ The system wraps OpenCode (a multi-LLM AI assistant) in a Docker container with 
 | Rollback capability | P1 | Auto-tagging on publish, reset to previous versions via chat |
 | Image/asset handling | P1 | User-provided image uploads through AI conversation |
 | Build error reporting | P1 | Build errors surfaced to user via AI chat |
+| AI page/URL awareness | P1 | AI knows which page user is viewing in preview without manual selection (MCP tool) |
+| Visual element selection | P1 | Click any preview element to provide context to AI for precise edits (service-injector) |
 
 ## User Stories
 
@@ -83,6 +85,19 @@ As a **site owner**, I want to roll back to a previous version if something goes
   - [x] Auto-tagging before each publish (`pre-publish-YYYYMMDD-HHMMSS`)
   - [x] AI can list and restore previous versions
 
+As a **site owner**, I want the AI to automatically know which page I'm currently viewing so that I can ask for edits without having to describe or select the page manually.
+- Acceptance Criteria:
+  - [ ] AI can determine the current preview URL (path, query string, page title, draft/live mode)
+  - [ ] Works without user needing to click or select anything
+  - [ ] AI uses page context to scope edits to the relevant page/route
+
+As a **site owner**, I want to click on any element in my website preview so that the AI knows exactly what I want to edit.
+- Acceptance Criteria:
+  - [ ] Toolbar button or hotkey activates element selection mode
+  - [ ] Hovering highlights selectable elements in the preview
+  - [ ] Clicking an element passes its context (tag, CSS selector, text content) to the AI
+  - [ ] AI uses element context to scope edits precisely
+
 ## Functional Requirements
 
 - FR-001: Container must start with single `docker run` command
@@ -105,6 +120,14 @@ As a **site owner**, I want to roll back to a previous version if something goes
 - FR-040: Fresh container shows welcome page at `/`
 - FR-041: Welcome page directs user to `/sn_admin/`
 - FR-042: Welcome page is editable template (becomes first site content)
+- FR-050: Dashboard shall track current preview iframe URL, page title, and view mode (draft/live)
+- FR-051: Page context shall be accessible to AI via MCP tool (on-demand query)
+- FR-052: Page context shall update when user navigates within preview iframe
+- FR-053: AI AGENTS.md shall instruct AI to check page context when user requests page-specific edits
+- FR-060: System shall enable element selection mode via toolbar button or hotkey
+- FR-061: Hovering in selection mode shall highlight selectable elements in the preview iframe
+- FR-062: Selected element context (tag, CSS selector, text content, position) shall be passed to AI
+- FR-063: Element selection shall work for standard HTML/CSS/JS sites
 
 ## Non-functional Requirements
 
@@ -307,7 +330,6 @@ Features explicitly deferred from MVP. This is the canonical list of future enha
 
 ### User Interface Enhancements
 - [ ] File browser in admin panel
-- [ ] Visual element selection (service-injector integration)
 - [ ] Side-by-side preview panel
 - [ ] Slash commands (`/publish`, `/preview`, `/branch`)
 - [ ] Drag-and-drop file upload UI
@@ -360,3 +382,5 @@ Features explicitly deferred from MVP. This is the canonical list of future enha
 | 1.0 | 2026-01-09 | AI Assistant | Initial version based on requirements gathering |
 | 1.1 | 2026-02-06 | AI Assistant | Added draft/publish workflow with git worktrees |
 | 1.2 | 2026-03-15 | AI Assistant | Restructured to /prd command format; added Objectives, User Stories, Success Metrics, Timeline sections |
+| 1.3 | 2026-04-27 | AI Assistant | Added AI page/URL awareness feature (P1): MCP-based current page context for end-user AI |
+| 1.4 | 2026-04-28 | AI Assistant | Promoted visual element selection from Future to main scope (P1): FR-060 through FR-063 |
