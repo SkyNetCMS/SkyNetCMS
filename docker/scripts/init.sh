@@ -77,47 +77,20 @@ chmod 755 /data/auth
 # ----------------------------------------
 # 3.6. Create OpenCode XDG directories
 # ----------------------------------------
-# Data and state persist in /data volume, cache is ephemeral in /tmp
-# Config stays read-only in image (/root/.config/opencode) for security
+# Data and state persist in /data volume, cache is ephemeral in /tmp.
+# Config stays read-only in image (/root/.config/opencode) for security.
+# /data/opencode must be world-readable so the nginx worker (www-data) can
+# reach the worktree directory for dev server preview.
 mkdir -p /data/opencode/data /data/opencode/state /tmp/opencode-cache
-
-# ----------------------------------------
-# 4. Start OpenCode web server
-# ----------------------------------------
-echo "[INFO] Starting OpenCode web server..."
-cd /data/website
-
-# Start OpenCode web server in background
-# Port 3000, localhost only (nginx will proxy to it)
-# --base-path allows OpenCode to work behind reverse proxy at /sn_admin/oc/
-#
-# XDG_DATA_HOME: Set to /data/opencode so worktrees are stored in a location
-# accessible to both OpenCode (root) and nginx (www-data) for dev server preview.
-# Default would be ~/.local/share which is /root/.local/share - not readable by www-data.
-mkdir -p /data/opencode
 chmod 755 /data/opencode
-XDG_DATA_HOME=/data OPENCODE_TEST_HOME=/data/website opencode web --port 3000 --hostname 127.0.0.1 --base-path /sn_admin/oc &
-OPENCODE_PID=$!
-echo "[INFO] OpenCode started with PID: $OPENCODE_PID"
 
-# Wait for OpenCode to be ready (max 30 seconds)
-# Health endpoint is at /sn_admin/oc/global/health with base-path
-echo "[INFO] Waiting for OpenCode to initialize..."
-OPENCODE_READY=false
-for i in $(seq 1 30); do
-    if curl -s http://127.0.0.1:3000/sn_admin/oc/global/health > /dev/null 2>&1; then
-        echo "[OK] OpenCode is ready (took ${i}s)"
-        OPENCODE_READY=true
-        break
-    fi
-    sleep 1
-done
-
-if [ "$OPENCODE_READY" = "false" ]; then
-    echo "[WARN] OpenCode may not be fully ready after 30s, continuing anyway..."
-fi
-
-cd /
+# ----------------------------------------
+# 4. OpenCode web server (on-demand)
+# ----------------------------------------
+# OpenCode is NOT started here. It starts lazily on the first request to
+# /sn_admin/oc/ (see nginx/lua/ocserver.lua) and auto-stops after 5 minutes of
+# inactivity when no session is busy. This saves resources on idle containers.
+echo "[INFO] OpenCode will start on-demand on first /sn_admin/oc/ access"
 
 # ----------------------------------------
 # 5. Run authentication setup (if credentials provided)
@@ -144,7 +117,7 @@ echo "  "
 echo "  Public site:  http://localhost/"
 echo "  Admin panel:  http://localhost/sn_admin/"
 echo "  Health check: http://localhost/health"
-echo "  OpenCode log: /var/log/opencode.log"
+echo "  OpenCode log: /tmp/opencode-dev.log (on-demand)"
 echo "  "
 if [ "$AUTH_MODE" = "preconfigured" ]; then
     echo "  Admin user: $ADMIN_USER"
@@ -159,5 +132,5 @@ echo "  Site title: ${SITE_TITLE:-SkyNetCMS}"
 echo "============================================"
 
 # Start OpenResty in foreground (keeps container running)
-# OpenCode continues running in background
+# OpenCode starts on-demand when /sn_admin/oc/ is first accessed
 exec openresty -g 'daemon off;'

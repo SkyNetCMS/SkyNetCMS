@@ -4,9 +4,10 @@
 # Uses pre-built OpenCode binary from ghcr.io/skynetcms/opencode
 # Runtime image: OpenResty + Node.js
 # ============================================
-# OpenCode version - override with: docker build --build-arg OPENCODE_VERSION=1.14.23-sn
+# OpenCode version - override with: docker build --build-arg OPENCODE_VERSION=1.15.12-sn
 # Available tags: https://github.com/SkyNetCMS/opencode/pkgs/container/opencode/versions
-ARG OPENCODE_VERSION=1.14.23-sn
+# 1.15.12-sn adds the GET /session/status route used by ocserver.lua's busy-check.
+ARG OPENCODE_VERSION=1.15.12-sn
 FROM ghcr.io/skynetcms/opencode:${OPENCODE_VERSION} AS opencode
 
 # ============================================
@@ -56,11 +57,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Allow www-data to run start-vite.sh as root without password
-# This is needed because nginx worker (www-data) spawns vite dev server
-# which needs write access to /data/website/node_modules
-RUN echo "www-data ALL=(root) NOPASSWD: /scripts/start-vite.sh" > /etc/sudoers.d/vite-dev \
-    && chmod 440 /etc/sudoers.d/vite-dev
+# Allow www-data to manage the on-demand background servers as root without a
+# password. The nginx worker (www-data) starts/stops the Vite dev server and
+# the OpenCode backend, both of which run as root (Vite needs write access to
+# node_modules; www-data cannot signal a root-owned process directly).
+RUN printf '%s\n' \
+    "www-data ALL=(root) NOPASSWD: /scripts/start-vite.sh, /scripts/stop-vite.sh, /scripts/start-opencode.sh, /scripts/stop-opencode.sh" \
+    > /etc/sudoers.d/skynet-servers \
+    && chmod 440 /etc/sudoers.d/skynet-servers
 
 # ----------------------------------------
 # Copy OpenCode binary from pre-built image

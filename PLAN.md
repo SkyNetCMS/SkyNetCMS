@@ -61,25 +61,26 @@
 > auto-stop when idle — but query OpenCode's `/session/status` API before stopping so an
 > in-progress AI generation is never killed. Shares process-management fixes with Phase 9.
 
-- [ ] Extract shared lifecycle base module `nginx/lua/serverlifecycle.lua`
+- [x] Extract shared lifecycle base module `nginx/lua/serverlifecycle.lua`
   - Common logic: PID/dir file management, shared-dict status tracking, start via sudo wrapper, `wait_for_ready`, `/proc/<pid>/status` liveness check, generic idle check with a pluggable "is-busy" predicate
   - Parameterized per service (port, PID file, dir file, shared dict name, start command, readiness check)
-- [ ] Refactor `nginx/lua/devserver.lua` to use the shared base module
+- [x] Refactor `nginx/lua/devserver.lua` to use the shared base module
   - Preserve current Vite behavior (port 5173, `dev_server` dict, 5-min idle, worktree restart)
-- [ ] Create `nginx/lua/ocserver.lua` using the shared base
+- [x] Create `nginx/lua/ocserver.lua` using the shared base
   - Port 3000, `oc_server` shared dict, 5-min idle timeout
-  - Implement `is_session_active()` — query `http://127.0.0.1:3000/sn_admin/oc/session/status`, return true if any session is running/busy
+  - Implement `is_busy()` — query `http://127.0.0.1:3000/sn_admin/oc/session/status` via raw socket, return true if any session is `busy`/`retry`; treat 404 as not-busy (older builds) and other errors as fail-safe busy
   - Idle check stops OpenCode only when no session is active; otherwise reset the activity timer
-- [ ] Create `docker/scripts/start-opencode.sh` wrapper
+- [x] Create `docker/scripts/start-opencode.sh` wrapper
   - Move the `XDG_DATA_HOME=/data OPENCODE_TEST_HOME=/data/website opencode web --port 3000 --hostname 127.0.0.1 --base-path /sn_admin/oc` invocation out of `init.sh`
-- [ ] Create `docker/scripts/stop-opencode.sh` wrapper (accepts PID and signal)
-- [ ] Add `start-opencode.sh` and `stop-opencode.sh` to sudoers in `docker/Dockerfile`
-- [ ] Remove eager OpenCode startup block from `docker/scripts/init.sh` (~lines 84-120, including the 30s readiness wait loop)
-- [ ] Add `access_by_lua_block` to the `/sn_admin/oc/` location in `nginx/conf.d/default.conf`
+- [x] Create `docker/scripts/stop-opencode.sh` wrapper (accepts PID and signal); also added `stop-vite.sh`
+- [x] Add `start-opencode.sh` and `stop-opencode.sh` (and `stop-vite.sh`) to sudoers in `docker/Dockerfile`
+- [x] Remove eager OpenCode startup block from `docker/scripts/init.sh` (kept XDG dir creation)
+- [x] Add `access_by_lua_block` to the `/sn_admin/oc/` location in `nginx/conf.d/default.conf`
   - Start OpenCode if not running, wait up to 30s for readiness, update activity timestamp
   - Keep WebSocket proxying and existing headers/timeouts intact
-- [ ] Add `lua_shared_dict oc_server 64k;` and an OpenCode idle-check timer to `nginx/nginx.conf` `init_worker_by_lua_block`
-- [ ] Test end-to-end: cold container → first `/sn_admin/oc/` hit starts OpenCode → AI works → idle 5 min with no active session stops it → idle during an active generation does NOT stop it
+- [x] Add `lua_shared_dict oc_server 64k;` and an OpenCode idle-check timer to `nginx/nginx.conf` `init_worker_by_lua_block`
+- [x] Bump OpenCode to `1.15.12-sn` (the `/session/status` route required by the busy-check is not present in `1.14.23-sn`)
+- [x] Test end-to-end: cold container → first `/sn_admin/oc/` hit starts OpenCode → AI works → idle 5 min with no active session stops it → idle during an active generation does NOT stop it
 
 ## Phase 9: Dev Server Resilience
 
