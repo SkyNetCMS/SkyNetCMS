@@ -85,6 +85,27 @@ mkdir -p /data/opencode/data /data/opencode/state /tmp/opencode-cache
 chmod 755 /data/opencode
 
 # ----------------------------------------
+# 3.7. inotify capacity check (best-effort)
+# ----------------------------------------
+# Vite's file watcher (chokidar) consumes inotify instances. On resource-constrained
+# hosts the default ceiling (often 128) can be exhausted, causing Vite to crash with
+# an EMFILE error on the dev preview. We can only WARN here: max_user_instances is a
+# host kernel setting, not namespaced, so raising it requires --privileged / SYS_ADMIN.
+INOTIFY_FILE="/proc/sys/fs/inotify/max_user_instances"
+if [ -r "$INOTIFY_FILE" ]; then
+    INOTIFY_MAX="$(cat "$INOTIFY_FILE" 2>/dev/null || echo 0)"
+    if [ "$INOTIFY_MAX" -lt 256 ] 2>/dev/null; then
+        # Attempt a conservative bump; silently fails without host privileges.
+        echo 512 > "$INOTIFY_FILE" 2>/dev/null || true
+        INOTIFY_MAX="$(cat "$INOTIFY_FILE" 2>/dev/null || echo 0)"
+        if [ "$INOTIFY_MAX" -lt 256 ] 2>/dev/null; then
+            echo "[WARN] fs.inotify.max_user_instances is low ($INOTIFY_MAX); Vite dev preview may crash with EMFILE."
+            echo "[WARN]   Fix on the host: sudo sysctl fs.inotify.max_user_instances=512"
+        fi
+    fi
+fi
+
+# ----------------------------------------
 # 4. OpenCode web server (on-demand)
 # ----------------------------------------
 # OpenCode is NOT started here. It starts lazily on the first request to
