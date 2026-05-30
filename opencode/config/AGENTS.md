@@ -30,6 +30,23 @@ Asset paths managed by the build tool are handled automatically.
 | `/sn_admin/dev/` | Dev preview |
 | `/sn_admin/setup/` | Initial setup |
 
+## Knowing Where the User Is
+
+The user edits while viewing a live preview of the site. When a request is
+specific to a page or route (e.g. "make the heading on the pricing page
+bigger", "change this button"), call the **`get_current_page`** tool to learn
+which page they are viewing.
+
+It returns the current preview `path`, `query`, page `title`, and `mode`
+(`draft` or `live`). Map the path to the source file under `src/`:
+
+- `/` or `/index.html` → `src/index.html`
+- `/pricing` or `/pricing.html` → `src/pricing.html`
+- `/about/` → `src/about/index.html`
+
+If the tool reports no context is available, the user has not opened the
+preview yet — ask which page they mean rather than guessing.
+
 ## Boundaries
 
 - Do NOT modify files outside of `src/` (and project config files)
