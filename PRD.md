@@ -122,7 +122,7 @@ As a **site owner**, I want to click on any element in my website preview so tha
 - FR-041: Welcome page directs user to `/sn_admin/`
 - FR-042: Welcome page is editable template (becomes first site content)
 - FR-050: Dashboard shall track current preview iframe URL, page title, and view mode (draft/live)
-- FR-051: Page context shall be accessible to AI via MCP tool (on-demand query)
+- FR-051: Page context shall be accessible to AI via an on-demand OpenCode tool (`get_current_page`); implemented as a global custom tool reading a loopback endpoint, not MCP
 - FR-052: Page context shall update when user navigates within preview iframe
 - FR-053: AI AGENTS.md shall instruct AI to check page context when user requests page-specific edits
 - FR-060: System shall enable element selection mode via toolbar button or hotkey
@@ -392,3 +392,4 @@ Features explicitly deferred from MVP. This is the canonical list of future enha
 | 1.3 | 2026-04-27 | AI Assistant | Added AI page/URL awareness feature (P1): MCP-based current page context for end-user AI |
 | 1.4 | 2026-04-28 | AI Assistant | Promoted visual element selection from Future to main scope (P1): FR-060 through FR-063 |
 | 1.5 | 2026-05-29 | AI Assistant | Added on-demand OpenCode lifecycle (P1): lazy start, session-status–aware idle shutdown; FR-070 through FR-074 |
+| 1.6 | 2026-05-29 | AI Assistant | Implemented AI page/URL awareness (FR-050–053): nginx page-context shared dict + global `get_current_page` OpenCode tool (replaces MCP approach in FR-051) |

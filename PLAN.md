@@ -109,21 +109,34 @@
 
 > FR-050 through FR-053: AI knows which page the user is viewing in the
 > preview iframe, without requiring manual selection.
+>
+> Architecture (decided after investigation): pull-based context. The dashboard
+> pushes the preview iframe's location to an in-memory nginx shared dict; a
+> **global, image-level OpenCode custom tool** (`.opencode/tools/`-style, not MCP)
+> reads it over loopback. Chosen over MCP because a native custom tool needs no
+> stdio server, no per-project files, and no user `npm install`. The tool is
+> global (read-only image config) so it never pollutes the user's repo.
+>
+> Note on element selection (Phase 13): verified against the OpenCode fork
+> (1.15.12-sn) that there is **no supported way to inject inline text into the
+> web chat input** — `/tui/append-prompt` drives the TUI via a polling queue the
+> web UI ignores, and the web UI has no `window.postMessage` bridge. True
+> inline-at-cursor element references therefore require adding a small
+> `postMessage` listener to the OpenCode fork's web app (Phase 13).
 
-- [ ] Dashboard JS: track current preview iframe URL, page title, and view mode (draft/live)
-  - Listen for iframe `load` events and navigation changes
-  - Store state in a known location accessible outside the browser (e.g., write to `/data/website/.opencode/current-page.json` via API endpoint)
-- [ ] Create nginx endpoint to receive and serve page context
-  - `POST /sn_admin/page-context` — dashboard JS writes current state
-  - `GET /sn_admin/page-context` — MCP tool reads current state
-  - Store in nginx shared dict or temp file (Lua)
-- [ ] Create MCP tool for page context query
+- [x] Dashboard JS: track current preview iframe URL, page title, and view mode (draft/live)
+  - `load` listener on the main preview iframe + on draft/live mode switch (`admin-ui/src/pages/dashboard/main.ts`)
+  - Reads same-origin `contentWindow.location` + `contentDocument.title`, POSTs to the backend
+- [x] Create nginx endpoint to receive and serve page context
+  - `POST /sn_admin/page-context` — dashboard writes state (htpasswd-authed; browser holds the credential)
+  - `GET /sn_admin/page-context-read` — tool reads state (loopback-only `allow 127.0.0.1; deny all;`, no auth)
+  - Stored in `lua_shared_dict page_context` (in-memory; avoids root/www-data file-write issues)
+- [x] Create a global OpenCode custom tool for page context query (not MCP)
   - Tool name: `get_current_page` (returns URL path, query string, page title, draft/live mode)
-  - Register via project-level OpenCode config (`templates/default/opencode.json`)
-  - MCP server reads from the page-context endpoint
-- [ ] Update end-user AGENTS.md (`templates/default/AGENTS.md`) with page awareness instructions
-  - Instruct AI to check page context when user requests page-specific edits
-  - Document the `get_current_page` tool and when to use it
+  - `opencode/config/tools/get_current_page.ts` → image-level `~/.config/opencode/tools/` (read-only)
+  - Tool `fetch`es the loopback reader endpoint; bash/`curl` fallback documented if the fork can't load it
+- [x] Update global AGENTS.md (`opencode/config/AGENTS.md`) with page awareness instructions
+  - Instruct AI to call `get_current_page` for page-specific edits; map path → `src/` source file
 - [ ] Test end-to-end: navigate in preview → AI queries current page → edits correct file
 
 ## Phase 11: Build Error Reporting
