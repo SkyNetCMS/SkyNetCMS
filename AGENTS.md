@@ -43,6 +43,38 @@ templates/default/ # Initial site template → /data/website/
 - **Auth files**: `/data/auth/` (www-data owned) - separate from `/data/website/` (root owned)
 - **OpenCode binary**: Pre-built from `ghcr.io/skynetcms/opencode` Docker image (SkyNetCMS fork with embedded web app, `--base-path` support). Version controlled via `OPENCODE_VERSION` build arg in `docker/Dockerfile` (defaults to `1.15.12-sn`).
 
+## On-Demand Server Lifecycle
+
+Both the Vite dev server and the OpenCode backend start lazily and stop when idle,
+driven by the shared `nginx/lua/serverlifecycle.lua` controller:
+
+- **Pattern**: lazy start on first request to the proxied location, auto-stop after
+  5 min idle. Activity = any HTTP request OR persistent SSE/WebSocket connection.
+- **OpenCode** (`ocserver.lua`, port 3000): before stopping, `is_busy()` polls
+  `GET /session/status`; a `busy`/`retry` session keeps it alive (never killed
+  mid-generation). A 404 (older builds) is treated as not-busy.
+- **Vite** (`devserver.lua`, port 5173): pure idle timeout, restarts on worktree change.
+
+### Process management (www-data → root)
+
+The nginx worker runs as `www-data` but these servers run as root, so:
+
+- **Liveness**: check `/proc/<pid>/status`, NOT `kill -0` (which returns a false
+  "not running" via EPERM when www-data probes a root-owned PID).
+- **Signals**: www-data cannot signal a root process directly — use the sudo
+  wrapper scripts (`start-vite.sh`, `stop-vite.sh`, `start-opencode.sh`,
+  `stop-opencode.sh`) listed in the `/etc/sudoers.d/skynet-servers` allowlist.
+
+### Probing OpenCode directly
+
+- API is reachable directly on `127.0.0.1:3000`; the app is mounted at BOTH `/`
+  and the `--base-path` prefix (`/sn_admin/oc`), so the prefix is optional when
+  testing internally.
+- The `ghcr.io/skynetcms/opencode` image entrypoint is `opencode` — run standalone
+  with `docker run ... <image> web --port ...` (pass `web ...`, not `opencode web ...`).
+- The OpenCode image has **no `curl`** — probe from the host via a published port,
+  or exec inside the full SkyNetCMS image (which has curl).
+
 ## Code Conventions
 
 - **Shell**: `#!/bin/bash`, use `set -e`
