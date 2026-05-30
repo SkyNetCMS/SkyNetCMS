@@ -87,26 +87,21 @@
 > Discovered in production: Vite dev server fails on resource-constrained hosts due to
 > exhausted inotify instances, and nginx worker (www-data) cannot manage root-owned Vite processes.
 >
-> Note: The `/proc`-based liveness check and sudo stop-wrapper below are shared with Phase 8's
-> `serverlifecycle.lua`. If Phase 8 lands first, implement these fixes in the shared module.
+> Note: The `/proc`-based liveness check and sudo stop-wrapper below were shared with Phase 8's
+> `serverlifecycle.lua` and landed there first — those two tasks are now complete (see Phase 8).
+> The remaining work is the inotify/EMFILE handling, scoped lean: best-effort detection + docs
+> only, since `max_user_instances` is a host kernel setting the container cannot reliably raise.
 
-- [ ] Add inotify `max_user_instances` check and best-effort raise in `docker/scripts/init.sh`
+- [x] Add inotify `max_user_instances` check (best-effort) in `docker/scripts/init.sh`
   - Read current value from `/proc/sys/fs/inotify/max_user_instances`
-  - If below 512, attempt to write 8192 (requires `--privileged` or `--cap-add SYS_ADMIN`)
-  - If write fails, print `[WARN]` with host-level sysctl fix command
-- [ ] Add inotify pre-check in `docker/scripts/start-vite.sh`
-  - Before starting Vite, compare in-use inotify instances vs max
-  - Exit with actionable error message instead of letting Node.js crash with raw EMFILE stack trace
-- [ ] Fix `is_process_running()` in `nginx/lua/devserver.lua`
-  - Replace `kill -0` with `/proc/<pid>/status` file check
-  - `kill -0` fails with EPERM when www-data checks root-owned process, returning false positive "not running"
-  - This causes wait_for_ready() to exit in ~1s instead of waiting 30s, masking real startup errors
-- [ ] Fix `stop_server()` in `nginx/lua/devserver.lua`
-  - www-data cannot send signals to root-owned Vite process
-  - Create `docker/scripts/stop-vite.sh` wrapper (accepts PID and signal)
-  - Add `stop-vite.sh` to sudoers in `docker/Dockerfile` alongside `start-vite.sh`
-  - Update `stop_server()` to use `sudo /scripts/stop-vite.sh` instead of direct `kill`
-- [ ] Add troubleshooting section to `README.md`
+  - If below 256, attempt to write 512 (silently fails without `--privileged` / `SYS_ADMIN`)
+  - If still low, print `[WARN]` with host-level sysctl fix command (non-fatal)
+- [x] Add inotify pre-flight WARN in `docker/scripts/start-vite.sh`
+  - Surface a clear `[WARN]` + host fix if the ceiling is below 256, instead of a cryptic EMFILE crash
+  - Dropped: counting in-use inotify instances (fragile `/proc/*/fd` walk, low value)
+- [x] Fix `is_process_running()` — use `/proc/<pid>/status` instead of `kill -0` (done in Phase 8, `serverlifecycle.lua`)
+- [x] Fix `stop_server()` — sudo `stop-vite.sh` wrapper + sudoers entry (done in Phase 8)
+- [x] Add troubleshooting section to `README.md`
   - Document EMFILE / inotify issue with host-level sysctl fix
   - Document persistent fix via `/etc/sysctl.d/99-inotify.conf`
 

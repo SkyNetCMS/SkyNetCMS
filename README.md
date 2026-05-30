@@ -143,6 +143,31 @@ docker logs -f skynetcms
 docker stop skynetcms && docker rm skynetcms
 ```
 
+### Troubleshooting
+
+**Dev preview fails / Vite crashes with `EMFILE` or `ENOSPC` (inotify)**
+
+On resource-constrained hosts the kernel's inotify limit (often 128 by default)
+can be exhausted by Vite's file watcher, crashing the dev preview at
+`/sn_admin/dev/`. The container can only warn about this — `max_user_instances`
+is a host kernel setting and is not namespaced, so it cannot be raised reliably
+from inside an unprivileged container.
+
+Temporary fix (resets on host reboot):
+
+```bash
+sudo sysctl fs.inotify.max_user_instances=512
+sudo sysctl fs.inotify.max_user_watches=524288
+```
+
+Persistent fix:
+
+```bash
+echo -e "fs.inotify.max_user_instances=512\nfs.inotify.max_user_watches=524288" | \
+  sudo tee /etc/sysctl.d/99-inotify.conf
+sudo sysctl --system
+```
+
 ## Documentation
 
 - [Product Requirements (PRD)](PRD.md)
