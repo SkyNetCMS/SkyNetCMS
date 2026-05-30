@@ -134,6 +134,53 @@ function initServiceInjector(): void {
     });
     
     injector.install();
+
+    // Track preview navigation: report page context to the backend on every
+    // iframe load so the AI can query the user's current page (FR-052).
+    const mainIframe = injector.getMainIframe();
+    if (mainIframe) {
+        mainIframe.addEventListener('load', () => {
+            postPageContext();
+        });
+    }
+}
+
+/**
+ * Push the current preview page context to the backend (AI page/URL awareness).
+ *
+ * Reads the main preview iframe's location/title (same-origin) plus the current
+ * draft/live mode and POSTs them to /sn_admin/page-context. The OpenCode tool
+ * `get_current_page` reads this back so the AI knows which page the user is on.
+ *
+ * Best-effort: silently ignores cross-origin/iframe-not-ready/network errors.
+ */
+function postPageContext(): void {
+    if (!injector) return;
+
+    const mainIframe = injector.getMainIframe();
+    if (!mainIframe?.contentWindow) return;
+
+    let path = '';
+    let query = '';
+    let title = '';
+    try {
+        const loc = mainIframe.contentWindow.location;
+        path = loc.pathname;
+        query = loc.search;
+        // contentDocument is same-origin; guard in case it's not yet ready
+        title = mainIframe.contentDocument?.title ?? '';
+    } catch {
+        // Cross-origin or not-ready: skip this update
+        return;
+    }
+
+    void fetch('/sn_admin/page-context', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path, query, title, mode: currentMode }),
+    }).catch(() => {
+        // Network/auth errors are non-fatal for the UI
+    });
 }
 
 /**
@@ -202,6 +249,10 @@ function setViewMode(mode: 'draft' | 'live'): void {
     
     // Update toggle UI - need to wait for service-injector's DOM
     updateToggleUI();
+
+    // Report the mode switch immediately; the iframe 'load' handler will
+    // refine path/title once the new page finishes loading.
+    postPageContext();
 }
 
 /**
