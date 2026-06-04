@@ -75,6 +75,21 @@ The nginx worker runs as `www-data` but these servers run as root, so:
 - The OpenCode image has **no `curl`** — probe from the host via a published port,
   or exec inside the full SkyNetCMS image (which has curl).
 
+### Custom tools / plugins (fork gotcha)
+
+- Do **NOT** `import { tool } from "@opencode-ai/plugin"` (as the upstream docs
+  show). The fork tries to `npm install @opencode-ai/plugin@<fork-version>`
+  (e.g. `1.15.12-sn`), which is not published to npm. The install fails, the
+  import can't resolve, and that one bad tool file **breaks the entire tool
+  registry** (even built-in `read`/`write`/`bash` disappear;
+  `/experimental/tool/ids` returns `UnknownError`).
+- Define tools as a **plain object** with no import:
+  `export default { description, args: {}, async execute() { ... } }`. The
+  `tool()` helper only adds zod/type sugar and is not required.
+- Global tools live in `opencode/config/tools/` (→ read-only image
+  `~/.config/opencode/tools/`); verify they load via
+  `GET 127.0.0.1:3000/experimental/tool/ids`.
+
 ## Code Conventions
 
 - **Shell**: `#!/bin/bash`, use `set -e`
