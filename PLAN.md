@@ -139,19 +139,64 @@
   - Instruct AI to call `get_current_page` for page-specific edits; map path → `src/` source file
 - [ ] Test end-to-end: navigate in preview → AI queries current page → edits correct file
 
-## Phase 11: Build Error Reporting
+## Phase 11: Visual Element Selection
+
+> FR-060 through FR-063: Click elements in the preview to give the AI precise
+> editing context. Depends on Phase 10 (AI Page/URL Awareness).
+>
+> Architecture (decided after investigation): pull-based, reusing the Phase 10
+> plumbing. The dashboard runs a multi-select mode against the same-origin
+> preview iframe; selected elements are curated into a labeled set (`#1`, `#2`…)
+> and POSTed into the existing `page_context` shared dict; the AI reads them by
+> calling the (extended) `get_current_page` tool. No OpenCode/fork change.
+>
+> Why not inject into the chat input: verified against the fork (1.15.13-sn) that
+> there is no supported way to insert text into the web chat composer
+> (`/tui/append-prompt` is TUI-only and unused by the web UI; the composer is a
+> framework-managed `contenteditable`; no `window.postMessage` bridge). True
+> inline-at-cursor insertion would require forking the web UI — out of scope here.
+>
+> Element identity: the dashboard captures a **"wise" minimal CSS selector**
+> (prefer meaningful `id` → distinctive class → ancestor-scoped → `:nth-of-type`
+> only as last resort, via `@medv/finder`) plus the element's visible **text** and
+> **tag**. The AI maps each to `src/` by grepping the selector's id/class and/or
+> the text (template sites are plain static HTML, so the rendered DOM mirrors
+> source). Backend stays source-only and never parses runtime HTML.
+
+- [ ] Add `@medv/finder` to `admin-ui` for wise-selector generation
+- [ ] Enable the toolbar "Select" button (remove `disabled`, update tooltip)
+  - `admin-ui/src/pages/dashboard/index.html` line 84
+  - Add a selection count + "Clear" control (shown when count > 0)
+- [ ] Implement multi-select mode in dashboard JS (`main.ts`)
+  - Inject overlay/highlight styles into the preview iframe (`contentDocument`)
+  - Hover highlights; click toggles an element in/out of the selection set
+  - Persistent boundary box + corner label badge (`#1`, `#2`…) per selected element
+  - Clear-all, Escape, and exiting select mode empty the set
+  - Selection persists until cleared or the preview navigates / changes mode
+- [ ] Capture minimal element descriptor on selection
+  - `{ label, selector (wise/minimal), text (trimmed), tag }` — no styles/bbox in AI-facing data
+  - POST `selectedElements` to `/sn_admin/page-context` (extends Phase 10 writer)
+- [ ] Extend the `get_current_page` tool to include `selectedElements`
+  - `opencode/config/tools/get_current_page.ts` returns the labeled set alongside page context
+- [ ] Update global AGENTS.md with element-selection instructions
+  - When the user references "this/these/#N", call `get_current_page`, read
+    `selectedElements`, and locate each in `src/` by id/class/text (text cross-check
+    when the selector ends in `:nth-of-type`; ask if ambiguous)
+- [ ] Test end-to-end: multi-select in preview → AI reads labeled set → edits correct source
+
+## Phase 12: Build Error Reporting
 
 > P1: Build errors surfaced to user via AI chat (FR-032).
 
 - [ ] Capture build stdout/stderr in a structured log file (`/data/website/.opencode/build-log.json`)
   - Include exit code, timestamp, truncated output
 - [ ] Surface build errors to AI context
-  - MCP tool or file-based approach so AI can read last build result
+  - Tool or file-based approach so AI can read last build result
   - AI AGENTS.md instructions to check build status after triggering builds
 - [ ] User-friendly error formatting in AI responses
   - AI should summarize the error, suggest fixes, and offer to retry
 
-## Phase 12: Image & Asset Handling
+## Phase 13: Image & Asset Handling
 
 > P1: User-provided image uploads through AI conversation (FR-025).
 
@@ -161,28 +206,6 @@
   - Test with common image formats (PNG, JPG, SVG, WebP)
 - [ ] Add image optimization guidance to AI context
   - Responsive images, lazy loading, alt text best practices
-
-## Phase 13: Visual Element Selection
-
-> FR-060 through FR-063: Click any element in the preview to give AI precise
-> editing context. Depends on Phase 10 (AI Page/URL Awareness).
-
-- [ ] Enable the existing toolbar "Select" button (remove `disabled` attribute)
-  - `admin-ui/src/pages/dashboard/index.html` line 84
-  - Update tooltip from "coming soon" to active description
-- [ ] Implement selection mode in dashboard JS
-  - Inject highlight overlay into preview iframe (CSS injection via `contentDocument`)
-  - Listen for hover events to highlight elements
-  - Listen for click to capture selected element
-- [ ] Extract element context on selection
-  - Capture: tag name, CSS selector path, text content, bounding box, computed styles
-  - Write to page-context endpoint (extend `/sn_admin/page-context` from Phase 9)
-- [ ] Extend MCP tool to include element context
-  - Extend `get_current_page` or add `get_selected_element` tool
-  - Return element details alongside page URL context
-- [ ] Update end-user AGENTS.md with element selection instructions
-  - Instruct AI to use element context for precise edits
-- [ ] Test end-to-end: select element → AI identifies correct file/line → applies targeted edit
 
 ## Future
 

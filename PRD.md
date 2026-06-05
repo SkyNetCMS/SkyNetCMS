@@ -125,9 +125,9 @@ As a **site owner**, I want to click on any element in my website preview so tha
 - FR-051: Page context shall be accessible to AI via an on-demand OpenCode tool (`get_current_page`); implemented as a global custom tool reading a loopback endpoint, not MCP
 - FR-052: Page context shall update when user navigates within preview iframe
 - FR-053: AI AGENTS.md shall instruct AI to check page context when user requests page-specific edits
-- FR-060: System shall enable element selection mode via toolbar button or hotkey
-- FR-061: Hovering in selection mode shall highlight selectable elements in the preview iframe
-- FR-062: Selected element context (tag, CSS selector, text content, position) shall be passed to AI
+- FR-060: System shall enable element selection mode via toolbar button or hotkey; multiple elements may be selected, toggled, and cleared
+- FR-061: Hovering in selection mode shall highlight selectable elements; selected elements shall show a persistent boundary with a label badge (`#1`, `#2`…)
+- FR-062: Selected element context (label, wise/minimal CSS selector, visible text, tag) shall be made available to the AI via the `get_current_page` tool (pull-based, reusing Phase 10 plumbing)
 - FR-063: Element selection shall work for standard HTML/CSS/JS sites
 - FR-070: OpenCode backend shall start on-demand when `/sn_admin/oc/` is first accessed, not eagerly at container boot
 - FR-071: First access shall block up to 30 seconds waiting for OpenCode readiness (`/global/health`)
@@ -393,3 +393,4 @@ Features explicitly deferred from MVP. This is the canonical list of future enha
 | 1.4 | 2026-04-28 | AI Assistant | Promoted visual element selection from Future to main scope (P1): FR-060 through FR-063 |
 | 1.5 | 2026-05-29 | AI Assistant | Added on-demand OpenCode lifecycle (P1): lazy start, session-status–aware idle shutdown; FR-070 through FR-074 |
 | 1.6 | 2026-05-29 | AI Assistant | Implemented AI page/URL awareness (FR-050–053): nginx page-context shared dict + global `get_current_page` OpenCode tool (replaces MCP approach in FR-051) |
+| 1.7 | 2026-06-04 | AI Assistant | Reordered phases (element selection promoted ahead of build-error/asset phases); implemented visual multi-element selection (FR-060–063) via labeled selection set + wise selector, surfaced through `get_current_page` |
