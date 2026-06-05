@@ -13,6 +13,7 @@
     "vite": "^6.0.0"
   },
   "dependencies": {
+    "@medv/finder": "^3.2.0",
     "service-injector": "^1.3.1"
   }
 }

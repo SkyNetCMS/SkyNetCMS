@@ -141,6 +141,24 @@ html, body {
     color: var(--sn-text-primary);
 }
 
+/* Element-selection (Phase 11) toolbar state */
+.sn-toolbar-btn[data-action="select"].active {
+    background: var(--sn-accent);
+    border-color: var(--sn-accent);
+    color: #001018;
+}
+
+.sn-select-count {
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+    color: var(--sn-accent);
+    font-family: var(--sn-font-sans);
+    font-size: var(--sn-text-xs);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
 /* ===== View Toggle (Draft/Live) ===== */
 .sn-view-toggle {
     display: flex;
