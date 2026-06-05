@@ -7,7 +7,9 @@
  * back from the loopback-only endpoint.
  *
  * Use this before making edits scoped to a specific page or route so you edit
- * the correct source file under src/.
+ * the correct source file under src/. The user can navigate between messages,
+ * so the result can change at any time — call it fresh whenever you need the
+ * current page (once per request is enough), never reuse an older value.
  *
  * NOTE: Defined as a plain tool object (no `@opencode-ai/plugin` import). The
  * `tool()` helper triggers a background npm install of a version-pinned
@@ -17,9 +19,12 @@
 export default {
   description:
     "Get the page the user is currently viewing in the website preview " +
-    "(URL path, query string, page title, and draft/live mode). Call this " +
-    "before making edits scoped to a specific page or route to determine " +
-    "which source file under src/ to edit.",
+    "(URL path, query string, page title, and draft/live mode). The user may " +
+    "navigate between messages, so this can change at any time — call it fresh " +
+    "whenever you need the current page rather than relying on a value from an " +
+    "earlier message. Calling it once per request is sufficient. Use it before " +
+    "making edits scoped to a specific page or route to determine which source " +
+    "file under src/ to edit.",
   args: {},
   async execute() {
     try {

@@ -37,6 +37,12 @@ specific to a page or route (e.g. "make the heading on the pricing page
 bigger", "change this button"), call the **`get_current_page`** tool to learn
 which page they are viewing.
 
+The page can change between your turns — the user may navigate the preview at
+any time. Do not reuse a page value from an earlier message; call
+`get_current_page` again whenever you need the current page for the request you
+are handling. One call per request is enough — no need to re-call it while
+composing a single response.
+
 It returns the current preview `path`, `query`, page `title`, and `mode`
 (`draft` or `live`). Map the path to the source file under `src/`:
 
