@@ -41,7 +41,7 @@ templates/default/ # Initial site template → /data/website/
 
 - **Nginx worker user**: `www-data` (not `nobody` - Docker Desktop macOS has I/O issues with UID 65534)
 - **Auth files**: `/data/auth/` (www-data owned) - separate from `/data/website/` (root owned)
-- **OpenCode binary**: Pre-built from `ghcr.io/skynetcms/opencode` Docker image (SkyNetCMS fork with embedded web app, `--base-path` support). Version controlled via `OPENCODE_VERSION` build arg in `docker/Dockerfile` (defaults to `1.15.12-sn`).
+- **OpenCode binary**: Pre-built from `ghcr.io/skynetcms/opencode` Docker image (SkyNetCMS fork with embedded web app, `--base-path` support). Version controlled via `OPENCODE_VERSION` build arg in `docker/Dockerfile` (defaults to `1.15.13-sn`).
 
 ## On-Demand Server Lifecycle
 
@@ -79,7 +79,7 @@ The nginx worker runs as `www-data` but these servers run as root, so:
 
 - Do **NOT** `import { tool } from "@opencode-ai/plugin"` (as the upstream docs
   show). The fork tries to `npm install @opencode-ai/plugin@<fork-version>`
-  (e.g. `1.15.12-sn`), which is not published to npm. The install fails, the
+  (e.g. `1.15.13-sn`), which is not published to npm. The install fails, the
   import can't resolve, and that one bad tool file **breaks the entire tool
   registry** (even built-in `read`/`write`/`bash` disappear;
   `/experimental/tool/ids` returns `UnknownError`).

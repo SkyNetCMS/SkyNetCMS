@@ -118,7 +118,7 @@
 > global (read-only image config) so it never pollutes the user's repo.
 >
 > Note on element selection (Phase 13): verified against the OpenCode fork
-> (1.15.12-sn) that there is **no supported way to inject inline text into the
+> (1.15.13-sn) that there is **no supported way to inject inline text into the
 > web chat input** — `/tui/append-prompt` drives the TUI via a polling queue the
 > web UI ignores, and the web UI has no `window.postMessage` bridge. True
 > inline-at-cursor element references therefore require adding a small

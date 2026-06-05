@@ -4,10 +4,12 @@
 # Uses pre-built OpenCode binary from ghcr.io/skynetcms/opencode
 # Runtime image: OpenResty + Node.js
 # ============================================
-# OpenCode version - override with: docker build --build-arg OPENCODE_VERSION=1.15.12-sn
+# OpenCode version - override with: docker build --build-arg OPENCODE_VERSION=1.15.13-sn
 # Available tags: https://github.com/SkyNetCMS/opencode/pkgs/container/opencode/versions
 # 1.15.12-sn adds the GET /session/status route used by ocserver.lua's busy-check.
-ARG OPENCODE_VERSION=1.15.12-sn
+# 1.15.13-sn fixes the web-UI base-path regression (runtime API/SSE calls now
+#   prefixed with --base-path, so projects/worktrees/folders load behind the proxy).
+ARG OPENCODE_VERSION=1.15.13-sn
 FROM ghcr.io/skynetcms/opencode:${OPENCODE_VERSION} AS opencode
 
 # ============================================
