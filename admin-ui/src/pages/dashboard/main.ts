@@ -129,6 +129,31 @@ const TOOLTIPS = {
     live: "Viewing LIVE - what visitors see. Click 'Draft' to continue editing."
 };
 
+// The OpenCode working directory (the site repo). OpenCode derives its project
+// "slug" from a base64url encoding of this path.
+const PROJECT_DIR = '/data/website';
+
+/**
+ * Build the OpenCode UI URL that opens the project directly in its session view.
+ *
+ * The OpenCode web UI normally lands on a project picker ("No recent projects /
+ * Add project") on first load, because it only auto-opens a project it has a
+ * remembered `lastProjectSession` for (browser-local). Deep-linking to
+ * `/<slug>/session` instead opens the project straight away and resolves the
+ * session: it resumes the last/most-recent session if one exists, or lands on a
+ * ready composer otherwise (it does NOT force a new empty session).
+ *
+ * `slug = base64url(PROJECT_DIR)` (matches OpenCode's own path encoding). The
+ * path is pure ASCII, so plain btoa + url-safe substitution is sufficient.
+ */
+function openCodeUrl(): string {
+    const slug = btoa(PROJECT_DIR)
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '');
+    return `/sn_admin/oc/${slug}/session`;
+}
+
 /**
  * Initialize service-injector with configuration
  */
@@ -140,7 +165,7 @@ function initServiceInjector(): void {
     injector = new ServiceInjector({
         wrapperMode: true,
         wrapperUrl: '/sn_admin/dev/',  // Default to draft mode for live editing
-        url: '/sn_admin/oc/',
+        url: openCodeUrl(),
         position: 'right',
         offset: '50%',
         windowWidth: '520px',
