@@ -117,12 +117,13 @@
 > stdio server, no per-project files, and no user `npm install`. The tool is
 > global (read-only image config) so it never pollutes the user's repo.
 >
-> Note on element selection (Phase 13): verified against the OpenCode fork
+> Note on element selection (Phase 11): verified against the OpenCode fork
 > (1.15.13-sn) that there is **no supported way to inject inline text into the
 > web chat input** — `/tui/append-prompt` drives the TUI via a polling queue the
 > web UI ignores, and the web UI has no `window.postMessage` bridge. True
 > inline-at-cursor element references therefore require adding a small
-> `postMessage` listener to the OpenCode fork's web app (Phase 13).
+> `postMessage` listener to the OpenCode fork's web app (deferred; the Phase 11
+> implementation uses the pull-based tool instead).
 
 - [x] Dashboard JS: track current preview iframe URL, page title, and view mode (draft/live)
   - `load` listener on the main preview iframe + on draft/live mode switch (`admin-ui/src/pages/dashboard/main.ts`)
@@ -137,7 +138,13 @@
   - Tool `fetch`es the loopback reader endpoint; bash/`curl` fallback documented if the fork can't load it
 - [x] Update global AGENTS.md (`opencode/config/AGENTS.md`) with page awareness instructions
   - Instruct AI to call `get_current_page` for page-specific edits; map path → `src/` source file
-- [ ] Test end-to-end: navigate in preview → AI queries current page → edits correct file
+- [x] Test end-to-end: navigate in preview → AI queries current page → edits correct file
+- [x] Open the OpenCode project directly to avoid the first-run picker
+  - The 1.15.x web UI lands on a "No recent projects" picker unless it has a
+    remembered session; point the dashboard's OpenCode iframe at the project
+    deep-link `/sn_admin/oc/<base64url('/data/website')>/session` so the project
+    opens straight into its session view (resumes the last/most-recent session;
+    never forces a new one). `admin-ui/src/pages/dashboard/main.ts` (`openCodeUrl()`)
 
 ## Phase 11: Visual Element Selection
 
@@ -163,26 +170,26 @@
 > the text (template sites are plain static HTML, so the rendered DOM mirrors
 > source). Backend stays source-only and never parses runtime HTML.
 
-- [ ] Add `@medv/finder` to `admin-ui` for wise-selector generation
-- [ ] Enable the toolbar "Select" button (remove `disabled`, update tooltip)
+- [x] Add `@medv/finder` to `admin-ui` for wise-selector generation
+- [x] Enable the toolbar "Select" button (remove `disabled`, update tooltip)
   - `admin-ui/src/pages/dashboard/index.html` line 84
   - Add a selection count + "Clear" control (shown when count > 0)
-- [ ] Implement multi-select mode in dashboard JS (`main.ts`)
+- [x] Implement multi-select mode in dashboard JS (`main.ts`)
   - Inject overlay/highlight styles into the preview iframe (`contentDocument`)
   - Hover highlights; click toggles an element in/out of the selection set
   - Persistent boundary box + corner label badge (`#1`, `#2`…) per selected element
   - Clear-all, Escape, and exiting select mode empty the set
   - Selection persists until cleared or the preview navigates / changes mode
-- [ ] Capture minimal element descriptor on selection
+- [x] Capture minimal element descriptor on selection
   - `{ label, selector (wise/minimal), text (trimmed), tag }` — no styles/bbox in AI-facing data
   - POST `selectedElements` to `/sn_admin/page-context` (extends Phase 10 writer)
-- [ ] Extend the `get_current_page` tool to include `selectedElements`
+- [x] Extend the `get_current_page` tool to include `selectedElements`
   - `opencode/config/tools/get_current_page.ts` returns the labeled set alongside page context
-- [ ] Update global AGENTS.md with element-selection instructions
+- [x] Update global AGENTS.md with element-selection instructions
   - When the user references "this/these/#N", call `get_current_page`, read
     `selectedElements`, and locate each in `src/` by id/class/text (text cross-check
     when the selector ends in `:nth-of-type`; ask if ambiguous)
-- [ ] Test end-to-end: multi-select in preview → AI reads labeled set → edits correct source
+- [x] Test end-to-end: multi-select in preview → AI reads labeled set → edits correct source
 
 ## Phase 12: Build Error Reporting
 

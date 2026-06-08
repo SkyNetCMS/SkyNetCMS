@@ -394,3 +394,4 @@ Features explicitly deferred from MVP. This is the canonical list of future enha
 | 1.5 | 2026-05-29 | AI Assistant | Added on-demand OpenCode lifecycle (P1): lazy start, session-status–aware idle shutdown; FR-070 through FR-074 |
 | 1.6 | 2026-05-29 | AI Assistant | Implemented AI page/URL awareness (FR-050–053): nginx page-context shared dict + global `get_current_page` OpenCode tool (replaces MCP approach in FR-051) |
 | 1.7 | 2026-06-04 | AI Assistant | Reordered phases (element selection promoted ahead of build-error/asset phases); implemented visual multi-element selection (FR-060–063) via labeled selection set + wise selector, surfaced through `get_current_page` |
+| 1.8 | 2026-06-07 | AI Assistant | Bumped OpenCode to 1.15.13-sn (fixes web-UI base-path API/SSE regression); deep-linked the dashboard's OpenCode iframe to the `/data/website` project session view to avoid the first-run "no recent projects" picker |
