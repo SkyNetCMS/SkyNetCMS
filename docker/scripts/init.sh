@@ -50,6 +50,15 @@ if [ ! -f "/data/website/dist/index.html" ]; then
     # Build site
     echo "[INFO] Running initial build..."
     cd /data/website
+
+    # Ensure dependencies are installed. The bundled template ships node_modules
+    # pre-installed (copied from /opt/templates/default), but a custom website
+    # (e.g. a cloned repo) gitignores node_modules, so install on demand.
+    if [ ! -d "node_modules" ]; then
+        echo "[INFO] node_modules not found - running npm install..."
+        npm install
+    fi
+
     npm run build
     
     # Initialize Git repository
